@@ -21,3 +21,23 @@ export const regions: Region[] = [
 ];
 
 export const regionGroups = ["수도권", "영남", "호남", "충청", "관동", "제주"];
+
+export const regionCoords: Record<string, { lat: number; lng: number }> = {
+  seoul: { lat: 37.566, lng: 126.978 },
+  gyeonggi: { lat: 37.413, lng: 127.518 },
+  incheon: { lat: 37.456, lng: 126.705 },
+  busan: { lat: 35.179, lng: 129.075 },
+  daegu: { lat: 35.871, lng: 128.601 },
+  ulsan: { lat: 35.538, lng: 129.311 },
+  gyeongnam: { lat: 35.46, lng: 128.213 },
+  gyeongbuk: { lat: 36.491, lng: 128.888 },
+  gwangju: { lat: 35.159, lng: 126.852 },
+  jeonnam: { lat: 34.816, lng: 126.463 },
+  jeonbuk: { lat: 35.82, lng: 127.108 },
+  daejeon: { lat: 36.35, lng: 127.384 },
+  chungnam: { lat: 36.518, lng: 126.8 },
+  chungbuk: { lat: 36.8, lng: 127.7 },
+  sejong: { lat: 36.48, lng: 127.289 },
+  gangwon: { lat: 37.822, lng: 128.155 },
+  jeju: { lat: 33.499, lng: 126.531 },
+};

@@ -19,9 +19,9 @@ export type SearchParams = {
   sort?: "want" | "visit" | "rating" | "price" | "totonoi";
 };
 
-export function searchFacilities(params: SearchParams): Facility[] {
+export function searchFacilities(params: SearchParams, catalog: Facility[] = facilities): Facility[] {
   const q = params.q?.trim().toLowerCase() ?? "";
-  let list = facilities.filter((f) => {
+  let list = catalog.filter((f) => {
     if (q) {
       const hay = `${f.name} ${f.nameEn} ${f.district} ${f.address} ${f.tags.join(" ")} ${f.type}`.toLowerCase();
       const regionName = regions.find((r) => r.id === f.regionId)?.name ?? "";
@@ -64,13 +64,13 @@ export function searchFacilities(params: SearchParams): Facility[] {
   return list;
 }
 
-export function suggestions(q: string) {
+export function suggestions(q: string, catalog: Facility[] = facilities) {
   const query = q.trim().toLowerCase();
   if (query.length < 1) return [];
   const regionHits = regions
     .filter((r) => r.name.includes(q) || r.id.includes(query))
     .map((r) => ({ kind: "region" as const, id: r.id, label: r.name, hint: "지역" }));
-  const facilityHits = facilities
+  const facilityHits = catalog
     .filter((f) => f.name.toLowerCase().includes(query) || f.district.includes(q) || f.tags.some((t) => t.includes(q)))
     .slice(0, 6)
     .map((f) => ({

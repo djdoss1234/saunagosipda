@@ -29,8 +29,18 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link href="/rankings" className="hover:text-white">
-                가고싶어요 랭킹
+              <Link href="/submit" className="hover:text-white">
+                시설 제보
+              </Link>
+            </li>
+            <li>
+              <Link href="/queue" className="hover:text-white">
+                검수 큐
+              </Link>
+            </li>
+            <li>
+              <Link href="/map" className="hover:text-white">
+                토토노이 지도
               </Link>
             </li>
           </ul>

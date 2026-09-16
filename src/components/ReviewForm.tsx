@@ -1,24 +1,31 @@
 "use client";
 
-import { getFacility } from "@/data/facilities";
 import { useApp } from "@/context/AppState";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function ReviewForm({ facilityId }: { facilityId: string }) {
-  const facility = getFacility(facilityId);
-  const { user, addVisit } = useApp();
+  const { catalog, ready, user, addVisit } = useApp();
+  const facility = catalog.find((f) => f.id === facilityId);
   const router = useRouter();
   const [body, setBody] = useState("");
   const [food, setFood] = useState("");
-  const [sauna, setSauna] = useState(facility?.saunas[0]?.tempC.toString() ?? "90");
-  const [plunge, setPlunge] = useState(facility?.plunges[0]?.tempC.toString() ?? "16");
+  const [sauna, setSauna] = useState("");
+  const [plunge, setPlunge] = useState("");
   const [visitNumber, setVisitNumber] = useState("1");
   const [outdoor, setOutdoor] = useState("있음");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  if (!facility) return null;
+  if (!ready) {
+    return <p className="px-4 py-16 text-center text-sm text-[var(--muted)]">불러오는 중…</p>;
+  }
+  if (!facility) {
+    return <p className="px-4 py-16 text-center text-sm text-[var(--muted)]">시설을 찾을 수 없습니다.</p>;
+  }
+
+  const saunaValue = sauna || String(facility.saunas[0]?.tempC ?? 90);
+  const plungeValue = plunge || String(facility.plunges[0]?.tempC ?? 16);
 
   return (
     <form
@@ -34,14 +41,13 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
           return;
         }
         setSaving(true);
-        const outdoorLine = `외기욕: ${outdoor}`;
         addVisit({
           facilityId,
           visitNumber: Number(visitNumber) || 1,
-          body: `${body.trim()}\n\n${outdoorLine}`,
+          body: `${body.trim()}\n\n외기욕: ${outdoor}`,
           food: food.trim() || undefined,
-          saunaTemps: [Number(sauna) || 0],
-          plungeTemps: [Number(plunge) || 0],
+          saunaTemps: [Number(saunaValue) || 0],
+          plungeTemps: [Number(plungeValue) || 0],
           photo: facility.cover,
         });
         router.push(`/saunas/${facilityId}`);
@@ -73,7 +79,7 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
             id="sauna-t"
             type="number"
             inputMode="numeric"
-            value={sauna}
+            value={saunaValue}
             onChange={(e) => setSauna(e.target.value)}
             className="mt-1 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3"
           />
@@ -86,7 +92,7 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
             id="plunge-t"
             type="number"
             inputMode="numeric"
-            value={plunge}
+            value={plungeValue}
             onChange={(e) => setPlunge(e.target.value)}
             className="mt-1 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3"
           />

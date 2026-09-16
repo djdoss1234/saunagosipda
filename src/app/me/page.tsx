@@ -3,11 +3,10 @@
 import { FacilityCard } from "@/components/FacilityCard";
 import { VisitCard } from "@/components/VisitCard";
 import { useApp } from "@/context/AppState";
-import { getFacility } from "@/data/facilities";
 import Link from "next/link";
 
 export default function MePage() {
-  const { user, wants, visits, logout } = useApp();
+  const { user, wants, visits, logout, catalog } = useApp();
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
@@ -21,7 +20,7 @@ export default function MePage() {
   }
 
   const mine = visits.filter((v) => v.userId === user.id);
-  const saved = wants.map((id) => getFacility(id)).filter(Boolean);
+  const saved = wants.map((id) => catalog.find((f) => f.id === id)).filter(Boolean);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">

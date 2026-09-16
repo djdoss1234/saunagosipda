@@ -1,5 +1,6 @@
 "use client";
 
+import { useApp } from "@/context/AppState";
 import { suggestions } from "@/lib/search";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,7 +21,8 @@ export function SearchBox({
   const [active, setActive] = useState(0);
   const boxRef = useRef<HTMLDivElement>(null);
   const listId = useId();
-  const hits = q.trim() ? suggestions(q) : [];
+  const { catalog } = useApp();
+  const hits = q.trim() ? suggestions(q, catalog) : [];
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {

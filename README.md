@@ -1,31 +1,39 @@
 # 사우나고싶다
 
-한국 찜질방·온천·호텔스파를 검색하고, **가고싶어요**로 저장하고, **사활**로 남기는 커뮤니티입니다. 일본 [사우나이키타이](https://sauna-ikitai.com/)의 정보 구조(검색·저장·방문기록·랭킹)를 한국 시설 문법에 맞춰 옮긴 프로토타입입니다.
+한국 찜질방·온천·호텔스파를 검색하고, 가고싶어요·사활·토토노이 점수로 비교하는 커뮤니티 프로토타입입니다.
 
-## 로컬 실행
+## 명령
 
 ```bash
 npm install
-npm run dev
+npm run dev          # http://127.0.0.1:3000
+npm test             # 하네스 (데이터 정합 + 제보/검수 규칙)
+npm run check        # test + lint + build
 ```
 
-브라우저에서 `http://127.0.0.1:3000`
+GitHub Actions(`.github/workflows/check.yml`)가 `main` 푸시/PR에서 같은 검사를 돌립니다.
 
-## 구조 (유지보수)
+## 규칙이 사는 곳
+
+UI는 규칙을 다시 만들지 않습니다. React는 `src/harness/community.ts`만 호출합니다.
 
 | 경로 | 역할 |
 | --- | --- |
-| `src/data/facilities.ts` | 시설 마스터 (이름, 요금, 온도, 주소) |
-| `src/data/totonoiProfiles.ts` | 토토노이 루프 프로필 (외기욕, 동선, 습도) |
-| `src/data/visits.ts` | 샘플 사활 |
-| `src/lib/totonoi.ts` | 냉탕 16–18°C 등 채점 루브릭 |
-| `src/lib/search.ts` | 검색·필터 |
-| `src/context/AppState.tsx` | 로그인·가고싶어요·사활 (브라우저 localStorage) |
+| `src/harness/community.ts` | 제보·승인·반려·카탈로그 병합·스토리지 마이그레이션·지도 투영 |
+| `src/harness/integrity.ts` | 시설 id / 지역 / 토토노이 프로필이 한 세트인지 |
+| `src/harness/community.test.ts` | 위 규칙의 테스트 |
+| `src/data/facilities.ts` | 시드 시설 |
+| `src/data/totonoiProfiles.ts` | 시드 토토노이 프로필 (id가 시설과 1:1) |
+| `src/lib/totonoi.ts` | 점수 루브릭 |
+| `src/lib/search.ts` | 검색 (카탈로그를 인자로 받음) |
+| `src/context/AppState.tsx` | localStorage 접착제 |
 
-시설을 추가할 때는 `facilities.ts`에 한 건 넣고, 같은 `id`로 `totonoiProfiles.ts`에 외기욕·동선을 적으면 됩니다.
+시설을 코드에 넣을 때: `facilities.ts` + **같은 id**로 `totonoiProfiles.ts`. 프로필이 빠지면 `npm test`가 실패합니다.
+
+이용자 제보는 `/submit` → `/queue` 승인 후에만 검색·지도에 붙습니다.
 
 ## 주의
 
-- 영업시간·요금·온도는 데모 값이며 실제와 다를 수 있습니다.
+- 요금·시간·온도는 데모 값입니다.
 - 토토노이 점수는 의학 조언이 아닙니다.
 - `.env*` 는 커밋하지 않습니다.

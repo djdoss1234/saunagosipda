@@ -3,23 +3,29 @@
 import { FacilityCard } from "@/components/FacilityCard";
 import { FilterBar } from "@/components/FilterBar";
 import { SearchBox } from "@/components/SearchBox";
+import { useApp } from "@/context/AppState";
 import { searchFacilities } from "@/lib/search";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 export function SearchResults() {
   const params = useSearchParams();
+  const { catalog } = useApp();
   const q = params.get("q") ?? "";
-  const results = searchFacilities({
-    q,
-    region: params.get("region") ?? undefined,
-    type: params.get("type") ?? undefined,
-    gender: params.get("gender") ?? undefined,
-    amenity: params.get("amenity") ?? undefined,
-    open24h: params.get("open24h") === "1",
-    outdoor: params.get("outdoor") === "1",
-    totonoiPlunge: params.get("totonoiPlunge") === "1",
-    sort: (params.get("sort") as "want" | "visit" | "rating" | "price" | "totonoi") ?? "want",
-  });
+  const results = searchFacilities(
+    {
+      q,
+      region: params.get("region") ?? undefined,
+      type: params.get("type") ?? undefined,
+      gender: params.get("gender") ?? undefined,
+      amenity: params.get("amenity") ?? undefined,
+      open24h: params.get("open24h") === "1",
+      outdoor: params.get("outdoor") === "1",
+      totonoiPlunge: params.get("totonoiPlunge") === "1",
+      sort: (params.get("sort") as "want" | "visit" | "rating" | "price" | "totonoi") ?? "want",
+    },
+    catalog,
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -36,7 +42,11 @@ export function SearchResults() {
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8">
             <p className="font-medium">조건에 맞는 시설이 없습니다.</p>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
-              지역을 넓히거나, ‘서울’ ‘온천’ ‘24시간’처럼 다른 키워드를 시도해 보세요.
+              지역을 넓히거나 다른 키워드를 시도해 보세요. 없는 집이면{" "}
+              <Link href="/submit" className="text-[var(--ember-deep)]">
+                제보
+              </Link>
+              해 주세요.
             </p>
           </div>
         ) : (

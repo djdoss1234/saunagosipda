@@ -106,3 +106,36 @@ export type UserProfile = {
   name: string;
   email: string;
 };
+
+export type SubmissionStatus = "pending" | "approved" | "rejected";
+
+export type FacilitySubmission = {
+  id: string;
+  status: SubmissionStatus;
+  createdAt: string;
+  reviewedAt?: string;
+  rejectReason?: string;
+  submitterName: string;
+  submitterId: string;
+  name: string;
+  regionId: string;
+  district: string;
+  address: string;
+  type: FacilityType;
+  phone: string;
+  priceFrom: number;
+  hours: string;
+  genderPolicy: GenderPolicy;
+  saunaTemp: number;
+  plungeTemp: number;
+  outdoorRest: OutdoorRest;
+  loop: LoopQuality;
+  humidity: HumidityStyle;
+  plungeDepth: PlungeDepth;
+  restLieDown: boolean;
+  natureView: boolean;
+  tvInSauna: boolean;
+  description: string;
+  source: string;
+  facilityId?: string;
+};

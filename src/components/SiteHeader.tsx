@@ -11,13 +11,13 @@ const nav = [
   { href: "/search", label: "사우나 찾기" },
   { href: "/visits", label: "사활" },
   { href: "/rankings", label: "랭킹" },
+  { href: "/map", label: "지도" },
   { href: "/magazine", label: "매거진" },
-  { href: "/map", label: "지역" },
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const { user } = useApp();
+  const { user, pendingCount } = useApp();
   const [open, setOpen] = useState(false);
 
   return (
@@ -45,6 +45,23 @@ export function SiteHeader() {
           <SearchBox size="md" />
         </div>
         <div className="ml-auto flex items-center gap-2 md:ml-0">
+          <Link
+            href="/submit"
+            className="hidden min-h-11 items-center px-2 text-sm text-[var(--ink-soft)] hover:text-[var(--ink)] sm:inline-flex"
+          >
+            제보
+          </Link>
+          <Link
+            href="/queue"
+            className="relative hidden min-h-11 items-center px-2 text-sm text-[var(--ink-soft)] hover:text-[var(--ink)] sm:inline-flex"
+          >
+            검수
+            {pendingCount > 0 ? (
+              <span className="ml-1 rounded-full bg-[var(--ember)] px-1.5 text-[10px] font-semibold text-white">
+                {pendingCount}
+              </span>
+            ) : null}
+          </Link>
           {user ? (
             <Link
               href="/me"
@@ -92,6 +109,12 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            <Link href="/submit" className="rounded-lg px-2 py-3 text-[15px]" onClick={() => setOpen(false)}>
+              시설 제보
+            </Link>
+            <Link href="/queue" className="rounded-lg px-2 py-3 text-[15px]" onClick={() => setOpen(false)}>
+              검수 큐{pendingCount ? ` (${pendingCount})` : ""}
+            </Link>
             <Link href={user ? "/me" : "/login"} className="rounded-lg px-2 py-3 text-[15px]" onClick={() => setOpen(false)}>
               {user ? "내 사활" : "로그인"}
             </Link>
