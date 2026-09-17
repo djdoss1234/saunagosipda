@@ -55,14 +55,13 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
           food: food.trim() || undefined,
           saunaTemps: hot === null ? [] : [hot],
           plungeTemps: cold === null ? [] : [cold],
-          photo: facility.cover,
+          photo: "",
         });
         router.push(`/saunas/${facilityId}`);
       }}
     >
-      <p className="kicker">Visit</p>
       <h1 className="font-serif text-3xl">{facility.name} 방문</h1>
-      <p className="text-sm text-[var(--muted)]">이키타이의 사활과 같습니다. 온도를 안 쟀으면 비워 두세요.</p>
+      <p className="text-sm text-[var(--muted)]">온도를 안 쟀으면 비워 두세요.</p>
 
       <div>
         <label htmlFor="visit-n" className="text-sm font-medium">

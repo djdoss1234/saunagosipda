@@ -134,9 +134,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         userName: state.user.name,
         likes: 0,
         date: systemClock.iso().slice(0, 10),
-        photo:
-          visit.photo ??
-          "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+        photo: visit.photo ?? "",
       };
       setState((prev) => ({ ...prev, extraVisits: [next, ...prev.extraVisits] }));
     },

@@ -6,9 +6,9 @@ import { formatCount } from "@/lib/format";
 import { useState } from "react";
 
 function when(iso: string) {
-  if (!iso) return "아직 재확인 전";
+  if (!iso) return "아직";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "아직 재확인 전";
+  if (Number.isNaN(d.getTime())) return "아직";
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
@@ -21,21 +21,10 @@ export function CatalogStatus({ overlay: given }: { overlay?: CatalogOverlay }) 
   const data = live ?? overlay;
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm leading-relaxed text-[var(--ink-soft)]">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--ink-soft)]">
       <p>
-        인허가 마지막 확인 <strong className="text-[var(--ink)]">{when(data.fetchedAt)}</strong>
-        {data.fetchedAt ? (
-          <>
-            {" "}
-            · 원천 영업 {formatCount(data.nationwideOpen)} · 폐업으로 내림 {formatCount(data.closedIds.length)} · 새로 올림{" "}
-            {formatCount(data.added.length)}
-          </>
-        ) : (
-          " · 지금은 빌드에 넣은 목록입니다."
-        )}
-      </p>
-      <p className="mt-1 text-xs text-[var(--muted)]">
-        행정안전부 목욕장업 CSV 기준입니다. 문 앞 영업·임시휴무는 인허가보다 늦거나 빠를 수 있습니다.
+        인허가 {when(data.fetchedAt)}
+        {data.fetchedAt ? ` · 폐업 ${formatCount(data.closedIds.length)} · 신규 ${formatCount(data.added.length)}` : ""}
       </p>
       <button
         type="button"
@@ -56,7 +45,7 @@ export function CatalogStatus({ overlay: given }: { overlay?: CatalogOverlay }) 
           }
         }}
       >
-        {busy ? "확인 중…" : "지금 인허가 다시 보기"}
+        {busy ? "확인 중…" : "다시 확인"}
       </button>
       {error ? <p className="mt-2 text-xs text-[var(--ember-deep)]">{error}</p> : null}
     </div>

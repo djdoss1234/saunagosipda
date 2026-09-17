@@ -39,10 +39,10 @@ export function licensedToFacility(row: LicensedPlace): Omit<Facility, "totonoi"
     wantCount: 0,
     visitCount: 0,
     rating: 0,
-    tags: [row.district, row.type, row.kind, "인허가"].filter(Boolean),
+    tags: [row.district, row.type].filter(Boolean),
     cover: "",
     gallery: [],
-    description: `${row.address}. 행정안전부 목욕장업 인허가상 영업중. 온도·요금·영업시간은 원천에 없어 비워 두었습니다.`,
+    description: row.address,
     crowd: [],
   };
 }

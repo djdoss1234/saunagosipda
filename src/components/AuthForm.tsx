@@ -28,9 +28,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         router.push(next);
       }}
     >
-      <p className="kicker">Account</p>
       <h1 className="font-serif text-3xl">{mode === "login" ? "로그인" : "회원가입"}</h1>
-      <p className="text-sm text-[var(--muted)]">데모 계정입니다. 정보는 이 브라우저에만 저장됩니다.</p>
+      <p className="text-sm text-[var(--muted)]">이 브라우저에만 저장됩니다.</p>
       <div>
         <label htmlFor="name" className="text-sm font-medium">
           닉네임 <span className="text-[var(--ember)]">*</span>

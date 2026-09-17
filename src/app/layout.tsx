@@ -24,11 +24,11 @@ const siteUrl = siteOrigin();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "사우나고싶다 — 한국 사우나 탐방 커뮤니티",
+    default: "사우나고싶다",
     template: "%s · 사우나고싶다",
   },
   description:
-    "전국 목욕장업 인허가로 찜질방·온천·사우나를 찾고, 가고싶어요와 방문 기록으로 온도를 채웁니다. 별점 평점은 없습니다.",
+    "전국 목욕장업 영업중 목록. 가고싶어요와 방문 기록.",
   openGraph: {
     locale: "ko_KR",
     type: "website",

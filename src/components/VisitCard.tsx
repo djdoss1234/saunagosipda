@@ -16,9 +16,9 @@ export function VisitCard({ visit }: { visit: Visit }) {
 
   return (
     <article className="panel overflow-hidden">
-      {visit.photo ? (
+      {visit.photo && !visit.photo.includes("unsplash.com") ? (
         <div className="relative aspect-[16/9]">
-          <Image src={visit.photo} alt={`${facility.name} 사활 사진`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" />
+          <Image src={visit.photo} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" />
         </div>
       ) : null}
       <div className="p-5">

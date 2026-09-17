@@ -75,9 +75,7 @@ export function SubmitForm() {
       }}
     >
       <h1 className="font-serif text-3xl">시설 제보</h1>
-      <p className="text-sm text-[var(--muted)]">
-        바로 공개되지 않습니다. 검수 대기 큐에서 확인한 뒤 검색·지도에 올라갑니다. 온도는 그날 체감이어도 됩니다.
-      </p>
+      <p className="text-sm text-[var(--muted)]">검수 후 목록에 올라갑니다.</p>
 
       <fieldset className="space-y-4">
         <legend className="font-medium">기본</legend>

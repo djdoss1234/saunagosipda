@@ -115,7 +115,7 @@ export function TotonoiMap() {
         ref={wrapRef}
         className="relative mt-6 aspect-[3/4] overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[linear-gradient(180deg,#d7e4da,#efe6d8)] sm:aspect-[4/3]"
       >
-        <p className="pointer-events-none absolute left-4 top-4 z-10 text-xs text-[var(--ink-soft)]">한반도 · 인허가 점 · 대표 점수</p>
+        <p className="pointer-events-none absolute left-4 top-4 z-10 text-xs text-[var(--ink-soft)]">점 = 좌표 있는 곳</p>
         <canvas
           ref={canvasRef}
           className="absolute inset-0 size-full cursor-pointer"

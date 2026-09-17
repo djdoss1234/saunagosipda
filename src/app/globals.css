@@ -47,10 +47,7 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(1200px 480px at 12% -10%, rgba(194, 65, 12, 0.08), transparent 55%),
-    radial-gradient(900px 420px at 100% 0%, rgba(63, 92, 72, 0.08), transparent 50%),
-    var(--cream);
+  background: var(--cream);
   color: var(--ink);
   font-family: var(--font-noto-sans), ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;

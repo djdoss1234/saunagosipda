@@ -1,6 +1,5 @@
 import { articles } from "@/data/articles";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -28,9 +27,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <p className="mt-3 text-sm text-[var(--muted)]">
         {article.author} · {article.date} · {article.minutes}분
       </p>
-      <div className="relative mt-6 aspect-[16/9] overflow-hidden rounded-2xl">
-        <Image src={article.cover} alt={article.title} fill className="object-cover" />
-      </div>
       <div className="mt-8 space-y-5 text-[16px] leading-8 text-[var(--ink-soft)]">
         {article.body.map((p) => (
           <p key={p.slice(0, 24)}>{p}</p>
