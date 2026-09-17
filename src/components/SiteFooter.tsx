@@ -7,7 +7,7 @@ export function SiteFooter() {
         <div>
           <p className="font-serif text-2xl">사우나고싶다</p>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-[var(--cream)]/72">
-            한국의 찜질방·온천·사우나를 인허가 원천으로 찾고, 다녀온 온도는 사활로만 채웁니다.
+            한국의 찜질방·온천·사우나를 인허가로 찾고, 온도는 방문 기록으로만 채웁니다.
           </p>
           <p className="mt-4 max-w-xs text-xs leading-relaxed text-[var(--cream)]/45">
             인허가에 없는 온도·요금·시간은 비웁니다. 로그인·검수는 데모입니다.
@@ -46,7 +46,7 @@ export function SiteFooter() {
         <div className="text-sm">
           <p className="font-semibold">원천</p>
           <p className="mt-3 leading-relaxed text-[var(--cream)]/70">
-            상호·주소는 행정안전부 목욕장업(영업중)과 지자체 공중위생 CSV입니다. 인허가에 없는 사진·온도·요금은 비웁니다. 대표 몇 곳의 온도는 편집 시드이며, 사활이 있으면 사활이 이깁니다.
+            상호·주소는 행정안전부 목욕장업(영업중)입니다. 인허가에 없는 사진·온도·요금은 비웁니다. 대표 몇 곳의 온도는 편집 시드이며, 방문 기록이 있으면 그 온도가 이깁니다.
           </p>
         </div>
       </div>

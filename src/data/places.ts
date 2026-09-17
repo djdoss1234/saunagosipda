@@ -1,30 +1,12 @@
 import licensedFile from "@/data/licensed-baths.json";
-import type { Facility, FacilityType } from "@/lib/types";
+import { isBathBusiness, type LicensedPlace } from "@/lib/localdata";
+import type { Facility } from "@/lib/types";
 
-export type LicensedPlace = {
-  id: string;
-  name: string;
-  kind: string;
-  type: FacilityType;
-  regionId: string;
-  district: string;
-  address: string;
-  lat: number | null;
-  lng: number | null;
-  phone: string;
-};
+export type { LicensedPlace };
+export { isBathBusiness };
 
 export function isLicensedId(id: string) {
   return id.startsWith("ld-") || id.startsWith("gap-");
-}
-
-export function isBathBusiness(name: string, kind = "") {
-  const n = name.replace(/\s+/g, "");
-  const bath = /사우나|싸우나|찜질|목욕|온천|한증|스파|불가마|숯가마|공동탕|대중탕|해수탕|헬스탕/;
-  const noise = /휘트니스|피트니스|헬스|골프|필라테스|요가|안마|마사지|피부관리|피부,|네일|짐|gym/i;
-  if (/이용업|미용업|세탁/.test(kind)) return false;
-  if (noise.test(n) && !bath.test(n)) return false;
-  return true;
 }
 
 export function hasKoreaCoords(lat: number, lng: number) {

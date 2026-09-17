@@ -9,7 +9,7 @@ const items = [
   { href: "/", label: "홈", icon: House, match: (path: string) => path === "/" },
   { href: "/search", label: "찾기", icon: Search, match: (path: string) => path.startsWith("/search") || path.startsWith("/saunas") },
   { href: "/map", label: "지도", icon: Map, match: (path: string) => path.startsWith("/map") },
-  { href: "/visits", label: "사활", icon: Heart, match: (path: string) => path.startsWith("/visits") },
+  { href: "/visits", label: "방문", icon: Heart, match: (path: string) => path.startsWith("/visits") },
   { href: "/me", label: "내 기록", icon: UserRound, match: (path: string) => path.startsWith("/me") || path.startsWith("/login") },
 ];
 

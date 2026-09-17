@@ -8,7 +8,7 @@ export function ClientVisitList({ facilityId }: { facilityId: string }) {
   const { visits } = useApp();
   const list = visits.filter((v: Visit) => v.facilityId === facilityId);
   if (!list.length) {
-    return <p className="mt-4 text-sm text-[var(--muted)]">아직 사활이 없습니다. 첫 기록을 남겨 주세요.</p>;
+    return <p className="mt-4 text-sm text-[var(--muted)]">아직 방문 기록이 없습니다. 첫 기록을 남겨 주세요.</p>;
   }
   return (
     <div className="mt-6 grid gap-6">

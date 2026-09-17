@@ -1,3 +1,5 @@
+import { licensedToFacility } from "@/data/places";
+import type { CatalogOverlay } from "@/lib/localdata";
 import type { Facility, FacilitySubmission, UserProfile, Visit } from "@/lib/types";
 
 export const STORAGE_KEY = "saunagosipda.v2";
@@ -47,6 +49,14 @@ export function mergeCatalog(seed: Facility[], approved: Facility[]): Facility[]
     ...approved,
     ...seed.filter((f) => !extraIds.has(f.id) && !extraNames.has(nameKey(f.name))),
   ];
+}
+
+export function applyCatalogOverlay(catalog: Facility[], overlay: CatalogOverlay | null | undefined): Facility[] {
+  if (!overlay?.fetchedAt) return catalog;
+  const closed = new Set(overlay.closedIds);
+  const kept = catalog.filter((f) => !closed.has(f.id));
+  const have = new Set(kept.map((f) => f.id));
+  return [...kept, ...overlay.added.filter((p) => !have.has(p.id)).map(licensedToFacility)];
 }
 
 export function isDuplicateName(name: string, catalog: Facility[], submissions: FacilitySubmission[]) {

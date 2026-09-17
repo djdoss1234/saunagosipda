@@ -3,6 +3,7 @@
 import { facilities } from "@/data/facilities";
 import { seedVisits } from "@/data/visits";
 import {
+  applyCatalogOverlay,
   applyVisitFacts,
   approveSubmission as approveInHarness,
   emptyState,
@@ -17,6 +18,7 @@ import {
   type CommunityState,
   type SubmitDraft,
 } from "@/harness/community";
+import { emptyOverlay, type CatalogOverlay } from "@/lib/localdata";
 import { buildFacility } from "@/lib/submission";
 import type { Facility, UserProfile, Visit } from "@/lib/types";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
@@ -28,6 +30,7 @@ type AppState = {
   visits: Visit[];
   submissions: CommunityState["submissions"];
   catalog: Facility[];
+  overlay: CatalogOverlay;
   pendingCount: number;
   login: (name: string, email: string) => void;
   logout: () => void;
@@ -48,12 +51,14 @@ function persist(state: CommunityState) {
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [state, setState] = useState<CommunityState>(emptyState);
+  const [overlay, setOverlay] = useState<CatalogOverlay>(emptyOverlay);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       const local = parseStorage(localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem("saunagosipda.v1"));
       let next = local;
+      let nextOverlay = emptyOverlay;
       try {
         const res = await fetch("/api/community");
         if (res.ok) {
@@ -64,10 +69,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             await fetch("/api/community", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(local) });
           }
         }
+        const cat = await fetch("/api/catalog");
+        if (cat.ok) {
+          const body = (await cat.json()) as { overlay?: CatalogOverlay };
+          if (body.overlay?.fetchedAt) nextOverlay = body.overlay;
+        }
       } catch {
         // 서버 없으면 로컬만. 폴백이 맞다.
       }
       if (!alive) return;
+      setOverlay(nextOverlay);
       setState(next);
       persist(next);
       setReady(true);
@@ -88,8 +99,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [state.extraVisits, state.liked],
   );
   const catalog = useMemo(
-    () => applyVisitFacts(mergeCatalog(facilities, state.approvedFacilities), visits),
-    [state.approvedFacilities, visits],
+    () => applyVisitFacts(applyCatalogOverlay(mergeCatalog(facilities, state.approvedFacilities), overlay), visits),
+    [state.approvedFacilities, visits, overlay],
   );
   const pendingCount = state.submissions.filter((s) => s.status === "pending").length;
 
@@ -100,6 +111,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     visits,
     submissions: state.submissions,
     catalog,
+    overlay,
     pendingCount,
     login: (name, email) => setState((prev) => ({ ...prev, user: { id: "me", name, email } })),
     logout: () => setState((prev) => ({ ...prev, user: null })),

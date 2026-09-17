@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s · 사우나고싶다",
   },
   description:
-    "전국 목욕장업 인허가 목록에서 찜질방·온천·사우나를 찾고, 가고싶어요와 사활로 온도를 채우는 한국형 사우나 커뮤니티.",
+    "전국 목욕장업 인허가로 찜질방·온천·사우나를 찾고, 가고싶어요와 방문 기록으로 온도를 채웁니다. 별점 평점은 없습니다.",
   openGraph: {
     locale: "ko_KR",
     type: "website",

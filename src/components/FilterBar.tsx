@@ -7,11 +7,11 @@ const types = ["찜질방", "온천", "호텔스파", "사우나", "워터파크
 const genders = ["남녀분리", "혼성", "남성전용", "여성전용"];
 const amenities = ["24시간", "수면실", "노천탕", "외기욕", "온천수", "예약제", "주차"];
 const sorts = [
+  { id: "name", label: "이름순" },
   { id: "want", label: "가고싶어요순" },
-  { id: "visit", label: "사활순" },
-  { id: "rating", label: "평점순" },
+  { id: "visit", label: "방문순" },
   { id: "price", label: "낮은 요금순" },
-  { id: "totonoi", label: "토토노이 적합순" },
+  { id: "totonoi", label: "루프 적합순" },
 ];
 
 export function FilterBar({ resultCount }: { resultCount: number }) {
@@ -90,7 +90,7 @@ export function FilterBar({ resultCount }: { resultCount: number }) {
           />
           냉탕 16–18°C
         </label>
-        <select className={selectClass} value={params.get("sort") ?? "want"} onChange={(e) => set("sort", e.target.value)} aria-label="정렬">
+        <select className={selectClass} value={params.get("sort") ?? "name"} onChange={(e) => set("sort", e.target.value)} aria-label="정렬">
           {sorts.map((s) => (
             <option key={s.id} value={s.id}>
               {s.label}
@@ -98,7 +98,7 @@ export function FilterBar({ resultCount }: { resultCount: number }) {
           ))}
         </select>
       </div>
-      <p className="text-sm text-[var(--muted)]">{resultCount}개 시설 · 입장·편의·외기욕은 시드/사활이 있는 곳만</p>
+      <p className="text-sm text-[var(--muted)]">{resultCount}개 시설 · 입장·편의·외기욕은 온도가 있는 곳만</p>
     </div>
   );
 }

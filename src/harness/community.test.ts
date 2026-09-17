@@ -4,6 +4,7 @@ import { buildFacility } from "@/lib/submission";
 import { catalogIssues } from "@/harness/integrity";
 import { isBathBusiness, isLicensedId } from "@/data/places";
 import {
+  applyCatalogOverlay,
   applyVisitFacts,
   approveSubmission,
   communityStoreTarget,
@@ -24,6 +25,7 @@ import {
   type SubmitDraft,
 } from "@/harness/community";
 import { searchFacilities } from "@/lib/search";
+import { diffCatalog, fingerprint, parseNationwide, regionOf } from "@/lib/localdata";
 import { totonoiScore } from "@/lib/totonoi";
 import { describe, expect, it } from "vitest";
 
@@ -285,5 +287,57 @@ describe("community store target", () => {
     expect(merged.wants).toEqual(["new"]);
     expect(isPopulated(emptyState())).toBe(false);
     expect(isPopulated(stored)).toBe(true);
+  });
+});
+
+describe("인허가 차분", () => {
+  it("폐업 행은 닫고 새 영업은 올린다", () => {
+    const csv = `사업장명,관리번호,도로명주소,영업상태명,상세영업상태명,업태구분명,전화번호
+열린탕,111-202-1990-00001,광주광역시 동구 금남로 1,영업/정상,영업,공동탕업,062-1
+닫힌탕,111-202-1990-00002,광주광역시 동구 금남로 2,폐업,폐업,공동탕업,
+새탕,111-202-1990-00003,전라남도 목포시 영산로 1,영업/정상,영업,사우나,
+`;
+    const live = parseNationwide(csv);
+    expect(live.open).toHaveLength(2);
+    expect(live.closed).toHaveLength(1);
+    expect(regionOf("광주광역시 동구 금남로 1")?.district).toBe("동구");
+    expect(regionOf("전남광주통합특별시 목포시 영산로 1")?.regionId).toBe("jeonnam");
+    const seed = [
+      { id: "ld-111-202-1990-00002", name: "닫힌탕", kind: "공동탕업", type: "사우나" as const, regionId: "gwangju", district: "동구", address: "광주광역시 동구 금남로 2", lat: null, lng: null, phone: "" },
+      { id: "ld-keep", name: "유지탕", kind: "공동탕업", type: "사우나" as const, regionId: "gwangju", district: "동구", address: "광주광역시 동구 금남로 9", lat: null, lng: null, phone: "" },
+    ];
+    const diff = diffCatalog(seed, live);
+    expect(diff.closedIds).toContain("ld-111-202-1990-00002");
+    expect(diff.added.some((p) => p.name === "새탕")).toBe(true);
+    expect(fingerprint("일곡녹차사우나", "광주 북구 일곡마을로 10-1, 상가동")).toBe(
+      fingerprint("일곡녹차사우나", "전남광주통합특별시 북구 일곡마을로 10-1 (일곡동)"),
+    );
+    const overlay = { fetchedAt: "2026-09-17T00:00:00.000Z", source: "t", nationwideOpen: 2, nationwideClosed: 1, added: diff.added, closedIds: diff.closedIds, unmatchedSeed: diff.unmatchedSeed };
+    const closed = facilities.find((f) => f.id === "ld-111-202-1990-00002") ?? {
+      ...seed[0],
+      nameEn: "",
+      lat: 0,
+      lng: 0,
+      phone: "미기재",
+      priceFrom: 0,
+      hours: "영업시간 미확인",
+      open24h: false,
+      reservation: false,
+      genderPolicy: "미확인" as const,
+      saunas: [],
+      plunges: [],
+      amenities: [],
+      wantCount: 0,
+      visitCount: 0,
+      rating: 0,
+      tags: [],
+      cover: "",
+      gallery: [],
+      description: "",
+      crowd: [],
+    };
+    const merged = applyCatalogOverlay([closed], overlay);
+    expect(merged.some((f) => f.id === closed.id)).toBe(false);
+    expect(merged.some((f) => f.name === "새탕")).toBe(true);
   });
 });

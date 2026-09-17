@@ -9,8 +9,8 @@ import { useState } from "react";
 
 const nav = [
   { href: "/search", label: "사우나 찾기" },
-  { href: "/visits", label: "사활" },
-  { href: "/rankings", label: "랭킹" },
+  { href: "/visits", label: "방문" },
+  { href: "/rankings", label: "저장순" },
   { href: "/map", label: "지도" },
   { href: "/magazine", label: "매거진" },
 ];
@@ -97,7 +97,7 @@ export function SiteHeader() {
               검수 큐{pendingCount ? ` (${pendingCount})` : ""}
             </Link>
             <Link href={user ? "/me" : "/login"} className="rounded-lg px-2 py-3 text-[15px]" onClick={() => setOpen(false)}>
-              {user ? "내 사활" : "로그인"}
+              {user ? "내 기록" : "로그인"}
             </Link>
           </div>
         </div>

@@ -42,10 +42,10 @@ export function FacilityDetail({ facility, related }: { facility: Facility; rela
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <TempPills facility={facility} />
-              {facility.rating > 0 ? (
-                <span className="text-sm text-[var(--muted)]">평점 {facility.rating.toFixed(1)}</span>
+              {facility.rating > 0 && !licensed ? (
+                <span className="text-sm text-[var(--muted)]">편집 시드 참고값 {facility.rating.toFixed(1)} · 이용자 평점 아님</span>
               ) : (
-                <span className="text-sm text-[var(--muted)]">평점 집계 전</span>
+                <span className="text-sm text-[var(--muted)]">별점 없음</span>
               )}
             </div>
             <p className="mt-5 max-w-prose text-[15px] leading-relaxed text-[var(--ink-soft)]">{facility.description}</p>
@@ -65,7 +65,7 @@ export function FacilityDetail({ facility, related }: { facility: Facility; rela
             <section className="mt-10">
               <h2 className="font-serif text-2xl">설비</h2>
               {rooms.length === 0 ? (
-                <p className="mt-3 text-sm text-[var(--muted)]">인허가에 사우나·냉탕 온도가 없습니다. 사활이 쌓이면 여기 올라갑니다.</p>
+                <p className="mt-3 text-sm text-[var(--muted)]">인허가에 사우나·냉탕 온도가 없습니다. 방문 기록이 쌓이면 여기 올라갑니다.</p>
               ) : (
                 <div className="mt-4 overflow-x-auto rounded-[var(--radius)] border border-[var(--border)]">
                   <table className="w-full min-w-[28rem] text-sm">
@@ -120,9 +120,9 @@ export function FacilityDetail({ facility, related }: { facility: Facility; rela
 
             <section className="mt-10">
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-2xl">사활</h2>
+                <h2 className="font-serif text-2xl">방문 기록</h2>
                 <Link href={`/saunas/${facility.id}/review`} className="btn-ink btn">
-                  사활 남기기
+                  기록 남기기
                 </Link>
               </div>
               <ClientVisitList facilityId={facility.id} />
@@ -178,7 +178,7 @@ export function FacilityDetail({ facility, related }: { facility: Facility; rela
             <div className="mt-5 flex flex-col gap-2">
               <WantButton facilityId={facility.id} baseCount={facility.wantCount} />
               <p className="text-xs text-[var(--muted)]">
-                사활 {formatCount(facility.visitCount)}
+                방문 {formatCount(facility.visitCount)}
                 {licensed ? " · 예약 미확인" : facility.reservation ? " · 예약 권장" : " · 예약 안내 없음"}
               </p>
             </div>

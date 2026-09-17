@@ -19,7 +19,7 @@ export function RankingsLists() {
         </div>
       </section>
       <section>
-        <h2 className="font-serif text-2xl">사활순</h2>
+        <h2 className="font-serif text-2xl">방문 수</h2>
         <div className="mt-4 grid gap-4">
           {byVisit.slice(0, 8).map((f, i) => (
             <FacilityCard key={`v-${f.id}`} facility={f} rank={i + 1} />

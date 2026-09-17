@@ -34,7 +34,7 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
           return;
         }
         if (body.trim().length < 20) {
-          setError("사활은 20자 이상 적어 주세요. 온도 체감이나 동선을 남기면 다른 사람에게 도움이 됩니다.");
+          setError("방문 기록은 20자 이상 적어 주세요. 온도 체감이나 동선을 남기면 다른 사람에게 도움이 됩니다.");
           return;
         }
         const hot = sauna.trim() === "" ? null : Number(sauna);
@@ -61,8 +61,8 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
       }}
     >
       <p className="kicker">Visit</p>
-      <h1 className="font-serif text-3xl">{facility.name} 사활</h1>
-      <p className="text-sm text-[var(--muted)]">다녀온 날의 온도, 물, 먹은 것까지. 짧은 일기처럼 남겨도 됩니다.</p>
+      <h1 className="font-serif text-3xl">{facility.name} 방문</h1>
+      <p className="text-sm text-[var(--muted)]">이키타이의 사활과 같습니다. 온도를 안 쟀으면 비워 두세요.</p>
 
       <div>
         <label htmlFor="visit-n" className="text-sm font-medium">
@@ -160,7 +160,7 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
         disabled={saving}
         className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center rounded-full bg-[var(--ember)] text-sm font-semibold text-white hover:bg-[var(--ember-deep)] disabled:opacity-70"
       >
-        {saving ? "저장 중…" : "사활 등록"}
+        {saving ? "저장 중…" : "방문 등록"}
       </button>
     </form>
   );

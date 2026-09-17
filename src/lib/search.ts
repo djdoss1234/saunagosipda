@@ -17,7 +17,7 @@ export type SearchParams = {
   amenity?: string;
   outdoor?: boolean;
   totonoiPlunge?: boolean;
-  sort?: "want" | "visit" | "rating" | "price" | "totonoi";
+  sort?: "want" | "visit" | "rating" | "price" | "totonoi" | "name";
 };
 
 export function searchFacilities(params: SearchParams, catalog: Facility[] = facilities): Facility[] {
@@ -57,14 +57,16 @@ export function searchFacilities(params: SearchParams, catalog: Facility[] = fac
     return true;
   });
 
-  const sort = params.sort ?? "want";
+  const sort = params.sort ?? "name";
   list = [...list].sort((a, b) => {
     if (sort === "visit") return b.visitCount - a.visitCount;
     if (sort === "rating") return b.rating - a.rating;
     if (sort === "price") return (a.priceFrom || 1e9) - (b.priceFrom || 1e9);
     if (sort === "totonoi") return totonoiScore(b) - totonoiScore(a);
-    const want = b.wantCount - a.wantCount;
-    if (want) return want;
+    if (sort === "want") {
+      const want = b.wantCount - a.wantCount;
+      if (want) return want;
+    }
     return a.name.localeCompare(b.name, "ko");
   });
   return list;

@@ -132,7 +132,7 @@ export function FacilityCard({ facility, rank }: { facility: Facility; rank?: nu
             <span>좌표 없음</span>
           )}
           {facility.wantCount > 0 ? <span>가고싶어요 {formatCount(facility.wantCount)}</span> : null}
-          {facility.visitCount > 0 ? <span>사활 {formatCount(facility.visitCount)}</span> : null}
+          {facility.visitCount > 0 ? <span>방문 {formatCount(facility.visitCount)}</span> : null}
         </div>
       </div>
     </Link>

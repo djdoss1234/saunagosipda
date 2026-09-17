@@ -17,11 +17,16 @@ export function TotonoiCard({ facility }: { facility: Facility }) {
             <h2 className="font-serif text-2xl">토토노이 루프</h2>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">
               {known
-                ? `사활 중앙값 사우나 ${hot}°C · 냉탕 ${cold}°C. 외기욕·동선은 아직 없습니다.`
-                : "인허가 원천에는 온도·냉탕·외기욕 정보가 없습니다. 다녀온 뒤 사활로 채워 주세요."}
+                ? `방문 기록 중앙값 사우나 ${hot}°C · 냉탕 ${cold}°C. 별점이 아닙니다. 외기욕·동선은 아직 없습니다.`
+                : "인허가에는 온도가 없습니다. 다녀온 뒤 방문 기록으로 채워 주세요. 온도 없으면 점수도 없습니다."}
             </p>
           </div>
-          {known ? <p className="font-serif text-3xl text-[var(--ember-deep)]">{score}</p> : null}
+          {known ? (
+            <p className="text-right">
+              <span className="block font-serif text-3xl text-[var(--ember-deep)]">{score}</span>
+              <span className="text-[11px] text-[var(--muted)]">루프 적합 · 평점 아님</span>
+            </p>
+          ) : null}
         </div>
       </section>
     );
@@ -47,11 +52,14 @@ export function TotonoiCard({ facility }: { facility: Facility }) {
         <div>
           <h2 className="font-serif text-2xl">토토노이 루프</h2>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            사우나 → 냉탕 → 외기욕 × {TOTONOI_GUIDE.sets}세트. 냉탕 {TOTONOI_GUIDE.plungeTemp.min}–{TOTONOI_GUIDE.plungeTemp.max}°C,
-            외기욕 {TOTONOI_GUIDE.restMinutes.min}–{TOTONOI_GUIDE.restMinutes.max}분 기준의 시설 적합도입니다. 건강 상담이 아닙니다.
+            별점이 아닙니다. 사우나 → 냉탕 → 외기욕 × {TOTONOI_GUIDE.sets}세트, 냉탕 {TOTONOI_GUIDE.plungeTemp.min}–{TOTONOI_GUIDE.plungeTemp.max}°C
+            기준의 시설 적합도입니다.
           </p>
         </div>
-        <p className="font-serif text-3xl text-[var(--ember-deep)]">{score}</p>
+        <p className="text-right">
+          <span className="block font-serif text-3xl text-[var(--ember-deep)]">{score}</span>
+          <span className="text-[11px] text-[var(--muted)]">루프 적합 · 평점 아님</span>
+        </p>
       </div>
       <dl className="mt-5 grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (

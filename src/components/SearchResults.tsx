@@ -1,5 +1,6 @@
 "use client";
 
+import { CatalogStatus } from "@/components/CatalogStatus";
 import { FacilityCard } from "@/components/FacilityCard";
 import { FilterBar } from "@/components/FilterBar";
 import { SearchBox } from "@/components/SearchBox";
@@ -42,7 +43,7 @@ export function SearchResults() {
       open24h: params.get("open24h") === "1",
       outdoor: params.get("outdoor") === "1",
       totonoiPlunge: params.get("totonoiPlunge") === "1",
-      sort: (params.get("sort") as "want" | "visit" | "rating" | "price" | "totonoi") ?? "want",
+      sort: (params.get("sort") as "want" | "visit" | "rating" | "price" | "totonoi" | "name") ?? "name",
     },
     catalog,
   );
@@ -51,12 +52,15 @@ export function SearchResults() {
     <div className="page-wrap py-10">
       <p className="kicker">Search</p>
       <h1 className="mt-2 font-serif text-3xl">사우나 검색</h1>
-      <p className="mt-2 text-sm text-[var(--muted)]">이름·지역은 인허가, 온도·외기욕 필터는 시드와 사활이 있는 곳만 걸립니다.</p>
+      <p className="mt-2 text-sm text-[var(--muted)]">이름·지역은 인허가, 온도 필터는 방문 기록이 있는 곳만 걸립니다.</p>
       <div className="mt-6 max-w-xl">
         <SearchBox initial={q} />
       </div>
       <div className="mt-6">
         <FilterBar resultCount={results.length} />
+      </div>
+      <div className="mt-6">
+        <CatalogStatus />
       </div>
       <div className="mt-8 grid gap-4">
             {results.length === 0 ? (

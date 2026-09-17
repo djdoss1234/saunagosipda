@@ -10,8 +10,8 @@ export default function MePage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <h1 className="font-serif text-3xl">내 사활</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">가고싶어요와 기록을 보려면 로그인하세요.</p>
+        <h1 className="font-serif text-3xl">내 기록</h1>
+        <p className="mt-3 text-sm text-[var(--muted)]">가고싶어요와 방문 기록을 보려면 로그인하세요.</p>
         <Link href="/login?next=/me" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-[var(--ember)] px-5 text-sm font-semibold text-white">
           로그인
         </Link>
@@ -44,10 +44,10 @@ export default function MePage() {
         </div>
       </section>
       <section className="mt-10">
-        <h2 className="font-serif text-2xl">내가 쓴 사활</h2>
+        <h2 className="font-serif text-2xl">내가 쓴 방문</h2>
         <div className="mt-4 grid gap-4">
           {mine.length === 0 ? (
-            <p className="text-sm text-[var(--muted)]">첫 사활을 남겨 보세요.</p>
+            <p className="text-sm text-[var(--muted)]">첫 방문 기록을 남겨 보세요.</p>
           ) : (
             mine.map((v) => <VisitCard key={v.id} visit={v} />)
           )}

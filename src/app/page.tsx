@@ -1,3 +1,4 @@
+import { CatalogStatus } from "@/components/CatalogStatus";
 import { FacilityCard } from "@/components/FacilityCard";
 import { SearchBox } from "@/components/SearchBox";
 import { VisitCard } from "@/components/VisitCard";
@@ -28,71 +29,58 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[#1a1410] text-white">
-        <div className="hero-steam absolute inset-0" />
-        <div className="hero-grain absolute inset-0" />
-        <div className="page-wrap relative py-16 sm:py-24">
-          <p className="kicker text-[var(--ember-soft)]">SAUNAGOSIPDA</p>
-          <h1 className="mt-4 max-w-2xl font-serif text-4xl leading-[1.15] text-white sm:text-6xl">
-            가고 싶은 탕이
-            <br />
-            전국에 있다
+      <section className="border-b border-[var(--border)] bg-[var(--surface)]">
+        <div className="page-wrap py-12 sm:py-16">
+          <p className="kicker">사우나 검색</p>
+          <h1 className="mt-3 max-w-2xl font-serif text-4xl leading-[1.2] text-[var(--ink)] sm:text-5xl">
+            가고 싶은 탕이 전국에 있다
           </h1>
-          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/78">
-            인허가로 상호와 자리를 확인하고, 온도는 사활이 쌓일 때만 올립니다. 없는 숫자는 만들지 않습니다.
+          <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-[var(--ink-soft)]">
+            별점 평점은 없습니다. 상호·주소는 목욕장업 인허가, 온도는 다녀온 사람이 남긴 방문 기록만 올립니다.
           </p>
           <div className="mt-8 max-w-xl">
-            <SearchBox autoFocus tone="hero" />
+            <SearchBox autoFocus />
           </div>
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {quick.map((chip) => (
-              <Link
-                key={chip.href}
-                href={chip.href}
-                className="inline-flex min-h-11 items-center rounded-full bg-white/12 px-3 text-sm text-white backdrop-blur-sm transition hover:bg-white/20"
-              >
+              <Link key={chip.href} href={chip.href} className="chip min-h-11 py-0 text-sm">
                 {chip.label}
               </Link>
             ))}
           </div>
-          <dl className="mt-10 grid max-w-2xl grid-cols-3 gap-4 text-white">
+          <dl className="mt-10 grid max-w-xl grid-cols-2 gap-6 sm:grid-cols-3">
             <div>
-              <dt className="text-[11px] tracking-[0.14em] uppercase text-white/60">인허가 영업중</dt>
+              <dt className="text-xs text-[var(--muted)]">인허가 영업중</dt>
               <dd className="font-serif text-3xl tracking-tight">{formatCount(licensed.length)}</dd>
             </div>
             <div>
-              <dt className="text-[11px] tracking-[0.14em] uppercase text-white/60">좌표 확인</dt>
+              <dt className="text-xs text-[var(--muted)]">좌표 확인</dt>
               <dd className="font-serif text-3xl tracking-tight">{formatCount(withCoords)}</dd>
             </div>
             <div>
-              <dt className="text-[11px] tracking-[0.14em] uppercase text-white/60">대표 시드</dt>
+              <dt className="text-xs text-[var(--muted)]">온도 있는 대표</dt>
               <dd className="font-serif text-3xl tracking-tight">{featured.length}</dd>
             </div>
           </dl>
+          <div className="mt-8 max-w-2xl">
+            <CatalogStatus />
+          </div>
         </div>
       </section>
 
-      <section className="border-b border-[var(--border)] bg-[var(--surface)]">
+      <section className="border-b border-[var(--border)]">
         <div className="page-wrap grid gap-8 py-10 sm:grid-cols-3">
           <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
             <strong className="block font-serif text-xl text-[var(--ink)]">원천</strong>
-            행정안전부 목욕장업 영업중 목록. 상호·주소·좌표만 가져옵니다.
+            행정안전부 목욕장업. 이키타이가 후기로 시설을 모으는 것과 달리, 여기서는 허가가 먼저입니다.
+          </p>
+          <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
+            <strong className="block font-serif text-xl text-[var(--ink)]">방문 기록</strong>
+            이키타이의 사활(サ活)과 같습니다. 온도·혼잡·한 줄 일기지, 별점이 아닙니다.
           </p>
           <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
             <strong className="block font-serif text-xl text-[var(--ink)]">비운 것</strong>
-            온도·요금·영업시간·사진은 인허가에 없으면 비웁니다. 재고 사진은 쓰지 않습니다.
-          </p>
-          <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
-            <strong className="block font-serif text-xl text-[var(--ink)]">채우는 것</strong>
-            사활 중앙값이 생기면 그 온도가 카드와 점수에 올라갑니다.
-          </p>
-        </div>
-        <div className="page-wrap pb-10">
-          <p className="max-w-3xl rounded-2xl border border-[var(--border)] bg-[var(--cream)] px-4 py-3 text-sm leading-relaxed text-[var(--ink-soft)]">
-            LOCALDATA 전국 목록 기준입니다. 시군구 파일이 400인 곳도 전국 CSV에 들어 있습니다. 온도·요금·영업시간은 인허가에 없어 비웁니다.{" "}
-            <Link href="/about" className="font-medium text-[var(--ember-deep)]">
-              데이터와 한계
-            </Link>
+            인허가에 없는 요금·영업시간·사진은 만들지 않습니다.
           </p>
         </div>
       </section>
@@ -103,8 +91,8 @@ export default function HomePage() {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="kicker">Visits</p>
-                <h2 className="mt-2 font-serif text-2xl">새 사활</h2>
-                <p className="mt-1 text-sm text-[var(--muted)]">편집 시드 방문 기록입니다. 로그인한 사활이 위에 쌓입니다.</p>
+                <h2 className="mt-2 font-serif text-2xl">최근 방문</h2>
+                <p className="mt-1 text-sm text-[var(--muted)]">다녀온 기록입니다. 로그인하면 여기에 쌓입니다.</p>
               </div>
               <Link href="/visits" className="text-sm font-medium text-[var(--ember-deep)]">
                 더 보기
@@ -121,8 +109,8 @@ export default function HomePage() {
             <div className="flex items-end justify-between">
               <div>
                 <p className="kicker">Featured</p>
-                <h2 className="mt-2 font-serif text-2xl">지금 주목하는 탕</h2>
-                <p className="mt-1 text-sm text-[var(--muted)]">온도·요금이 있는 대표 시드. 인허가 전체는 검색에서.</p>
+                <h2 className="mt-2 font-serif text-2xl">온도가 있는 대표 탕</h2>
+                <p className="mt-1 text-sm text-[var(--muted)]">편집 시드입니다. 전국 목록은 검색에서.</p>
               </div>
               <Link href="/search" className="text-sm font-medium text-[var(--ember-deep)]">
                 전체 검색
@@ -144,7 +132,7 @@ export default function HomePage() {
                 전체
               </Link>
             </div>
-            <p className="mt-1 text-xs text-[var(--muted)]">대표 시설의 시드 수치입니다.</p>
+            <p className="mt-1 text-xs text-[var(--muted)]">저장 횟수입니다. 평점이 아닙니다.</p>
             <ol className="mt-4 space-y-3">
               {ranked.map((f, i) => (
                 <li key={f.id}>
@@ -153,7 +141,7 @@ export default function HomePage() {
                     <span>
                       <span className="block text-sm font-medium">{f.name}</span>
                       <span className="text-xs text-[var(--muted)]">
-                        {formatCount(f.wantCount)} · 사활 {formatCount(f.visitCount)}
+                        {formatCount(f.wantCount)} · 방문 {formatCount(f.visitCount)}
                       </span>
                     </span>
                   </Link>
