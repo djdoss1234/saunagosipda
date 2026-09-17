@@ -14,6 +14,7 @@ export function WantButton({ facilityId, baseCount }: { facilityId: string; base
   return (
     <button
       type="button"
+      aria-pressed={on}
       className={`inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full px-5 text-sm font-semibold transition ${
         on
           ? "bg-[var(--ember)] text-white"
@@ -24,7 +25,7 @@ export function WantButton({ facilityId, baseCount }: { facilityId: string; base
         if (!ok) router.push(`/login?next=/saunas/${facilityId}`);
       }}
     >
-      <Heart className={`size-4 ${on ? "fill-current" : ""}`} />
+      <Heart className={`size-4 ${on ? "fill-current" : ""}`} aria-hidden />
       가고싶어요 {formatCount(count)}
       {!user ? <span className="text-xs font-normal opacity-80">로그인</span> : null}
     </button>

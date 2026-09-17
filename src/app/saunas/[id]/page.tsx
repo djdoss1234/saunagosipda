@@ -1,10 +1,9 @@
-import { ClientFacilityPage } from "@/components/ClientFacilityPage";
-import { FacilityDetail } from "@/components/FacilityDetail";
+import { ClientFacilityPage, LiveFacility } from "@/components/ClientFacilityPage";
 import { facilities, getFacility } from "@/data/facilities";
 import type { Metadata } from "next";
 
 export function generateStaticParams() {
-  return facilities.map((f) => ({ id: f.id }));
+  return facilities.filter((f) => f.featured).map((f) => ({ id: f.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -18,5 +17,5 @@ export default async function FacilityPage({ params }: { params: Promise<{ id: s
   const facility = getFacility(id);
   if (!facility) return <ClientFacilityPage id={id} />;
   const related = facilities.filter((f) => f.regionId === facility.regionId && f.id !== facility.id).slice(0, 3);
-  return <FacilityDetail facility={facility} related={related} />;
+  return <LiveFacility id={id} fallback={facility} related={related} />;
 }

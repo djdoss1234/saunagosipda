@@ -10,19 +10,29 @@ export function SearchBox({
   initial = "",
   size = "lg",
   autoFocus = false,
+  tone = "light",
 }: {
   initial?: string;
   size?: "lg" | "md";
   autoFocus?: boolean;
+  tone?: "light" | "hero";
 }) {
   const router = useRouter();
   const [q, setQ] = useState(initial);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const [picked, setPicked] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
   const listId = useId();
+  const inputId = useId();
   const { catalog } = useApp();
-  const hits = q.trim() ? suggestions(q, catalog) : [];
+  const popular = [
+    { kind: "region" as const, id: "seoul", label: "서울", hint: "지역" },
+    { kind: "region" as const, id: "busan", label: "부산", hint: "지역" },
+    { kind: "region" as const, id: "incheon", label: "인천", hint: "지역" },
+    { kind: "region" as const, id: "gyeonggi", label: "경기", hint: "지역" },
+  ];
+  const hits = q.trim() ? suggestions(q, catalog) : tone === "hero" ? popular : [];
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -41,13 +51,17 @@ export function SearchBox({
   return (
     <div ref={boxRef} className="relative w-full">
       <form
-        className={`flex overflow-hidden rounded-full border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow)] ${
+        className={`flex overflow-hidden rounded-full border bg-[var(--surface)] ${
           size === "lg" ? "h-14" : "h-12"
+        } ${
+          tone === "hero"
+            ? "border-white/20 shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
+            : "border-[var(--border)] shadow-[var(--shadow)]"
         }`}
         onSubmit={(e) => {
           e.preventDefault();
           const hit = hits[active];
-          if (open && hit) {
+          if (open && hit && picked) {
             if (hit.kind === "facility") router.push(`/saunas/${hit.id}`);
             else router.push(`/search?region=${hit.id}`);
             setOpen(false);
@@ -56,11 +70,11 @@ export function SearchBox({
           go();
         }}
       >
-        <label className="sr-only" htmlFor="site-search">
+        <label className="sr-only" htmlFor={inputId}>
           시설명·지역·키워드 검색
         </label>
         <input
-          id="site-search"
+          id={inputId}
           value={q}
           autoFocus={autoFocus}
           autoComplete="off"
@@ -68,16 +82,19 @@ export function SearchBox({
             setQ(e.target.value);
             setOpen(true);
             setActive(0);
+            setPicked(false);
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => {
             if (!open || !hits.length) return;
             if (e.key === "ArrowDown") {
               e.preventDefault();
+              setPicked(true);
               setActive((i) => (i + 1) % hits.length);
             }
             if (e.key === "ArrowUp") {
               e.preventDefault();
+              setPicked(true);
               setActive((i) => (i - 1 + hits.length) % hits.length);
             }
           }}
@@ -87,6 +104,7 @@ export function SearchBox({
           aria-expanded={open && hits.length > 0}
           aria-controls={listId}
           aria-autocomplete="list"
+          aria-activedescendant={open && hits[active] ? `${listId}-opt-${active}` : undefined}
         />
         <button
           type="submit"
@@ -103,13 +121,16 @@ export function SearchBox({
           className="absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] py-2 shadow-[var(--shadow-lg)]"
         >
           {hits.map((hit, i) => (
-            <li key={`${hit.kind}-${hit.id}`} role="option" aria-selected={i === active}>
+            <li key={`${hit.kind}-${hit.id}`} id={`${listId}-opt-${i}`} role="option" aria-selected={i === active}>
               <button
                 type="button"
                 className={`flex w-full cursor-pointer items-center justify-between px-4 py-2.5 text-left text-sm ${
                   i === active ? "bg-[var(--cream-2)]" : "hover:bg-[var(--cream-2)]"
                 }`}
-                onMouseEnter={() => setActive(i)}
+                onMouseEnter={() => {
+                  setActive(i);
+                  setPicked(true);
+                }}
                 onClick={() => {
                   if (hit.kind === "facility") router.push(`/saunas/${hit.id}`);
                   else router.push(`/search?region=${hit.id}`);

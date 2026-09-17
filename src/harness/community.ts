@@ -162,6 +162,42 @@ export function mergeVisits(seed: Visit[], extra: Visit[], liked: string[]) {
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
+export function median(values: number[]) {
+  const xs = values.filter((n) => Number.isFinite(n) && n > 0).sort((a, b) => a - b);
+  if (!xs.length) return null;
+  const mid = Math.floor(xs.length / 2);
+  return xs.length % 2 ? xs[mid] : (xs[mid - 1] + xs[mid]) / 2;
+}
+
+export function applyVisitFacts(catalog: Facility[], visits: Visit[]): Facility[] {
+  const byId = new Map<string, Visit[]>();
+  for (const v of visits) {
+    const list = byId.get(v.facilityId) ?? [];
+    list.push(v);
+    byId.set(v.facilityId, list);
+  }
+  return catalog.map((f) => {
+    const vs = byId.get(f.id);
+    if (!vs?.length) return f;
+    const hot = median(vs.flatMap((v) => v.saunaTemps));
+    const cold = median(vs.flatMap((v) => v.plungeTemps));
+    if (hot == null && cold == null) return f;
+    const saunas =
+      hot == null
+        ? f.saunas
+        : f.saunas.length
+          ? f.saunas.map((s, i) => (i === 0 ? { ...s, tempC: Math.round(hot) } : s))
+          : [{ name: "사활 중앙값", tempC: Math.round(hot), type: "제보", gender: "공용" as const }];
+    const plunges =
+      cold == null
+        ? f.plunges
+        : f.plunges.length
+          ? f.plunges.map((s, i) => (i === 0 ? { ...s, tempC: Math.round(cold * 10) / 10 } : s))
+          : [{ name: "사활 중앙값", tempC: Math.round(cold * 10) / 10, gender: "공용" as const }];
+    return { ...f, saunas, plunges, visitCount: Math.max(f.visitCount, vs.length) };
+  });
+}
+
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
@@ -189,6 +225,42 @@ export function parseStorage(text: string | null): CommunityState {
   }
 }
 
+export function parseKvPayload(result: unknown): CommunityState {
+  if (result == null) return emptyState();
+  if (typeof result === "string") return parseStorage(result);
+  return migrateStorage(result);
+}
+
+export function isPopulated(state: CommunityState) {
+  return !!(
+    state.user ||
+    state.wants.length ||
+    state.extraVisits.length ||
+    state.liked.length ||
+    state.submissions.length ||
+    state.approvedFacilities.length
+  );
+}
+
+function byId<T extends { id: string }>(base: T[], incoming: T[]) {
+  const map = new Map(base.map((item) => [item.id, item]));
+  for (const item of incoming) map.set(item.id, item);
+  return [...map.values()];
+}
+
+export function mergeCommunityState(base: CommunityState, incoming: CommunityState): CommunityState {
+  // ponytail: 가고싶어요는 마지막 클라이언트가 이긴다. 사활·제보는 id로 합쳐 빈 PUT이 전체를 지우지 않게 한다.
+  return {
+    version: STORAGE_VERSION,
+    user: incoming.user ?? base.user,
+    wants: incoming.wants,
+    extraVisits: byId(base.extraVisits, incoming.extraVisits),
+    liked: [...new Set([...base.liked, ...incoming.liked])],
+    submissions: byId(base.submissions, incoming.submissions),
+    approvedFacilities: byId(base.approvedFacilities, incoming.approvedFacilities),
+  };
+}
+
 /** Korea peninsula bounding box for pin projection */
 export const KOREA_BOUNDS = { minLat: 33.1, maxLat: 38.7, minLng: 124.6, maxLng: 131.9 };
 
@@ -208,4 +280,21 @@ export function scoreColor(score: number) {
   if (score >= 65) return "#D85A1A";
   if (score >= 50) return "#C4A574";
   return "#7A6E63";
+}
+
+export type StoreTarget =
+  | { kind: "remote"; url: string; token?: string }
+  | { kind: "kv"; url: string; token: string }
+  | { kind: "file"; path: string };
+
+export function communityStoreTarget(env: Record<string, string | undefined>): StoreTarget {
+  if (env.COMMUNITY_STORE_URL) {
+    return { kind: "remote", url: env.COMMUNITY_STORE_URL, token: env.COMMUNITY_STORE_TOKEN };
+  }
+  if (env.KV_REST_API_URL && env.KV_REST_API_TOKEN) {
+    return { kind: "kv", url: env.KV_REST_API_URL, token: env.KV_REST_API_TOKEN };
+  }
+  if (env.COMMUNITY_PATH) return { kind: "file", path: env.COMMUNITY_PATH };
+  if (env.VERCEL) return { kind: "file", path: "/tmp/saunagosipda-community.json" };
+  return { kind: "file", path: ".data/community.json" };
 }

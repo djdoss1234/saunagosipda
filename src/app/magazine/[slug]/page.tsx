@@ -20,7 +20,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   if (!article) notFound();
 
   return (
-    <article className="mx-auto max-w-2xl px-4 py-10">
+    <article className="page-wrap max-w-2xl py-10">
       <Link href="/magazine" className="text-sm text-[var(--ember-deep)]">
         매거진
       </Link>
@@ -29,7 +29,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         {article.author} · {article.date} · {article.minutes}분
       </p>
       <div className="relative mt-6 aspect-[16/9] overflow-hidden rounded-2xl">
-        <Image src={article.cover} alt="" fill className="object-cover" />
+        <Image src={article.cover} alt={article.title} fill className="object-cover" />
       </div>
       <div className="mt-8 space-y-5 text-[16px] leading-8 text-[var(--ink-soft)]">
         {article.body.map((p) => (

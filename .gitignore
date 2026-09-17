@@ -33,9 +33,16 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+.data/
+
 # vercel
 .vercel
+.tmp/
+.agents/
+skills-lock.json
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+scripts/.cache/

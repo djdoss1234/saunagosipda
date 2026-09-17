@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="px-4 py-16 text-center text-sm text-[var(--muted)]">검색 준비 중…</div>}>
+    <Suspense fallback={<p className="page-wrap py-16 text-center text-sm text-[var(--muted)]">검색 준비 중…</p>}>
       <SearchResults />
     </Suspense>
   );

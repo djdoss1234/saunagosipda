@@ -1,18 +1,37 @@
+import { isLicensedId, tempsKnown } from "@/data/places";
 import { plungeBand, saunaBand, TOTONOI_GUIDE, totonoiScore } from "@/lib/totonoi";
 import type { Facility } from "@/lib/types";
 
 export function TotonoiCard({ facility }: { facility: Facility }) {
   const t = facility.totonoi;
-  if (!t) return null;
-  const hot = Math.max(...facility.saunas.map((s) => s.tempC));
-  const cold = Math.min(...facility.plunges.map((s) => s.tempC));
-  const score = totonoiScore(facility);
-  const coldBand = plungeBand(cold);
-  const hotBand = saunaBand(hot, t.humidity);
+  const known = tempsKnown(facility);
+  const hot = known ? Math.max(...facility.saunas.map((s) => s.tempC)) : 0;
+  const cold = known ? Math.min(...facility.plunges.map((s) => s.tempC)) : 0;
 
+  if (isLicensedId(facility.id) && !t) {
+    const score = known ? totonoiScore(facility) : 0;
+    return (
+      <section className="panel mt-10 p-5">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-2xl">토토노이 루프</h2>
+            <p className="mt-2 text-sm text-[var(--ink-soft)]">
+              {known
+                ? `사활 중앙값 사우나 ${hot}°C · 냉탕 ${cold}°C. 외기욕·동선은 아직 없습니다.`
+                : "인허가 원천에는 온도·냉탕·외기욕 정보가 없습니다. 다녀온 뒤 사활로 채워 주세요."}
+            </p>
+          </div>
+          {known ? <p className="font-serif text-3xl text-[var(--ember-deep)]">{score}</p> : null}
+        </div>
+      </section>
+    );
+  }
+
+  if (!t) return null;
+  const score = totonoiScore(facility);
   const rows = [
-    { label: "사우나 온도", value: `${hot}°C · ${hotBand.label}` },
-    { label: "냉탕 온도", value: `${cold}°C · ${coldBand.label}` },
+    { label: "사우나 온도", value: known ? `${hot}°C · ${saunaBand(hot, t.humidity).label}` : "인허가에 없음" },
+    { label: "냉탕 온도", value: known ? `${cold}°C · ${plungeBand(cold).label}` : "인허가에 없음" },
     { label: "냉탕 수심", value: t.plungeDepth },
     { label: "외기욕", value: t.outdoorRest },
     { label: "루프 동선", value: t.loop },
@@ -23,7 +42,7 @@ export function TotonoiCard({ facility }: { facility: Facility }) {
   ];
 
   return (
-    <section className="mt-10 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
+    <section className="panel mt-10 p-5">
       <div className="flex items-end justify-between gap-4">
         <div>
           <h2 className="font-serif text-2xl">토토노이 루프</h2>

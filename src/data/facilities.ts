@@ -1,4 +1,7 @@
+import { licensedPlaces, licensedToFacility } from "@/data/places";
 import { withTotonoi } from "@/data/totonoiProfiles";
+import { seedVisits } from "@/data/visits";
+import { applyVisitFacts } from "@/harness/community";
 import type { Facility } from "@/lib/types";
 
 const img = {
@@ -520,7 +523,15 @@ const catalog: Omit<Facility, "totonoi">[] = [
   },
 ];
 
-export const facilities: Facility[] = catalog.map(withTotonoi);
+function norm(name: string) {
+  return name.replace(/\s+/g, "").replace(/\(주\)|주식회사/g, "");
+}
+
+const featuredKeys = new Set(catalog.map((f) => `${f.regionId}|${f.district}|${norm(f.name)}`));
+const extra = licensedPlaces
+  .filter((p) => !featuredKeys.has(`${p.regionId}|${p.district}|${norm(p.name)}`))
+  .map(licensedToFacility);
+export const facilities: Facility[] = applyVisitFacts([...catalog, ...extra].map(withTotonoi), seedVisits);
 
 export function getFacility(id: string) {
   return facilities.find((f) => f.id === id);

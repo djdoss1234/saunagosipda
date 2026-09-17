@@ -26,17 +26,30 @@ export function saunaBand(tempC: number, humidity: TotonoiProfile["humidity"]) {
 }
 
 export function totonoiScore(facility: Facility) {
-  const hot = Math.max(...facility.saunas.map((s) => s.tempC));
-  const cold = Math.min(...facility.plunges.map((s) => s.tempC));
+  const hot = Math.max(0, ...facility.saunas.map((s) => s.tempC));
+  const cold = Math.min(...facility.plunges.map((s) => s.tempC), 99);
+  const temps = hot > 0 && cold > 0 && cold < 90;
   const t = facility.totonoi;
-  if (!t) return 40;
-  let score = 40;
-  const plunge = plungeBand(cold);
-  if (plunge.tone === "good") score += 18;
-  else if (plunge.tone === "ok") score += 8;
-  else if (plunge.tone === "deep") score += 10;
-  const sauna = saunaBand(hot, t.humidity);
-  if (sauna.tone === "good") score += 12;
+  if (!t) {
+    if (!temps) return 0;
+    let score = 40;
+    const plunge = plungeBand(cold);
+    if (plunge.tone === "good") score += 18;
+    else if (plunge.tone === "ok") score += 8;
+    else if (plunge.tone === "deep") score += 10;
+    const sauna = saunaBand(hot, "건식");
+    if (sauna.tone === "good") score += 12;
+    return Math.min(100, score);
+  }
+  let score = temps ? 40 : 20;
+  if (temps) {
+    const plunge = plungeBand(cold);
+    if (plunge.tone === "good") score += 18;
+    else if (plunge.tone === "ok") score += 8;
+    else if (plunge.tone === "deep") score += 10;
+    const sauna = saunaBand(hot, t.humidity);
+    if (sauna.tone === "good") score += 12;
+  }
   if (t.outdoorRest === "우수") score += 16;
   else if (t.outdoorRest === "있음") score += 10;
   else if (t.outdoorRest === "내기욕만") score += 4;

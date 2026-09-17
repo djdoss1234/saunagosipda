@@ -15,10 +15,12 @@ export function VisitCard({ visit }: { visit: Visit }) {
   const region = regions.find((r) => r.id === facility.regionId)?.name;
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow)]">
-      <div className="relative aspect-[16/9]">
-        <Image src={visit.photo} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" />
-      </div>
+    <article className="panel overflow-hidden">
+      {visit.photo ? (
+        <div className="relative aspect-[16/9]">
+          <Image src={visit.photo} alt={`${facility.name} 사활 사진`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 640px" />
+        </div>
+      ) : null}
       <div className="p-5">
         <div className="flex items-center justify-between gap-3 text-sm">
           <p className="font-medium text-[var(--ink)]">{visit.userName}</p>
@@ -54,10 +56,11 @@ export function VisitCard({ visit }: { visit: Visit }) {
         </div>
         <button
           type="button"
-          className="mt-4 inline-flex min-h-11 cursor-pointer items-center gap-1.5 text-sm text-[var(--ink-soft)] hover:text-[var(--ember)]"
+          className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm text-[var(--ink-soft)] hover:text-[var(--ember)]"
+          aria-label={`좋아요 ${visit.likes}`}
           onClick={() => likeVisit(visit.id)}
         >
-          <Heart className="size-4" />
+          <Heart className="size-4" aria-hidden />
           {visit.likes}
         </button>
       </div>

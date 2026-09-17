@@ -3,8 +3,10 @@
 import { facilities } from "@/data/facilities";
 import { seedVisits } from "@/data/visits";
 import {
+  applyVisitFacts,
   approveSubmission as approveInHarness,
   emptyState,
+  isPopulated,
   mergeCatalog,
   mergeVisits,
   parseStorage,
@@ -48,24 +50,46 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<CommunityState>(emptyState);
 
   useEffect(() => {
-    const migrated = parseStorage(localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem("saunagosipda.v1"));
-    setState(migrated);
-    persist(migrated);
-    setReady(true);
+    let alive = true;
+    (async () => {
+      const local = parseStorage(localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem("saunagosipda.v1"));
+      let next = local;
+      try {
+        const res = await fetch("/api/community");
+        if (res.ok) {
+          const body = (await res.json()) as { state?: unknown };
+          const server = parseStorage(JSON.stringify(body.state ?? null));
+          if (isPopulated(server)) next = server;
+          else if (isPopulated(local)) {
+            await fetch("/api/community", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(local) });
+          }
+        }
+      } catch {
+        // 서버 없으면 로컬만. 폴백이 맞다.
+      }
+      if (!alive) return;
+      setState(next);
+      persist(next);
+      setReady(true);
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
 
   useEffect(() => {
     if (!ready) return;
     persist(state);
+    fetch("/api/community", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(state) }).catch(() => {});
   }, [ready, state]);
 
-  const catalog = useMemo(
-    () => mergeCatalog(facilities, state.approvedFacilities),
-    [state.approvedFacilities],
-  );
   const visits = useMemo(
     () => mergeVisits(seedVisits, state.extraVisits, state.liked),
     [state.extraVisits, state.liked],
+  );
+  const catalog = useMemo(
+    () => applyVisitFacts(mergeCatalog(facilities, state.approvedFacilities), visits),
+    [state.approvedFacilities, visits],
   );
   const pendingCount = state.submissions.filter((s) => s.status === "pending").length;
 

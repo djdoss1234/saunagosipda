@@ -2,7 +2,23 @@
 
 import { FacilityDetail } from "@/components/FacilityDetail";
 import { useApp } from "@/context/AppState";
+import type { Facility } from "@/lib/types";
 import Link from "next/link";
+
+export function LiveFacility({
+  id,
+  fallback,
+  related,
+}: {
+  id: string;
+  fallback: Facility;
+  related: Facility[];
+}) {
+  const { catalog, ready } = useApp();
+  const facility = (ready ? catalog.find((f) => f.id === id) : undefined) ?? fallback;
+  const liveRelated = related.map((item) => catalog.find((f) => f.id === item.id) ?? item);
+  return <FacilityDetail facility={facility} related={liveRelated} />;
+}
 
 export function ClientFacilityPage({ id }: { id: string }) {
   const { catalog, ready } = useApp();

@@ -1,4 +1,5 @@
 import { facilities } from "@/data/facilities";
+import { tempsKnown } from "@/data/places";
 import { regions } from "@/data/regions";
 import { totonoiScore } from "@/lib/totonoi";
 import type { Facility } from "@/lib/types";
@@ -32,12 +33,14 @@ export function searchFacilities(params: SearchParams, catalog: Facility[] = fac
     if (params.gender && f.genderPolicy !== params.gender) return false;
     if (params.open24h && !f.open24h) return false;
     if (params.reservation && !f.reservation) return false;
-    if (params.maxPrice && f.priceFrom > params.maxPrice) return false;
+    if (params.maxPrice && (f.priceFrom <= 0 || f.priceFrom > params.maxPrice)) return false;
     if (params.minSauna) {
+      if (!tempsKnown(f)) return false;
       const hot = Math.max(...f.saunas.map((s) => s.tempC));
       if (hot < params.minSauna) return false;
     }
     if (params.maxPlunge) {
+      if (!tempsKnown(f)) return false;
       const cold = Math.min(...f.plunges.map((s) => s.tempC));
       if (cold > params.maxPlunge) return false;
     }
@@ -47,6 +50,7 @@ export function searchFacilities(params: SearchParams, catalog: Facility[] = fac
       if (rest !== "있음" && rest !== "우수") return false;
     }
     if (params.totonoiPlunge) {
+      if (!tempsKnown(f)) return false;
       const cold = Math.min(...f.plunges.map((s) => s.tempC));
       if (cold < 16 || cold > 18) return false;
     }
@@ -57,9 +61,11 @@ export function searchFacilities(params: SearchParams, catalog: Facility[] = fac
   list = [...list].sort((a, b) => {
     if (sort === "visit") return b.visitCount - a.visitCount;
     if (sort === "rating") return b.rating - a.rating;
-    if (sort === "price") return a.priceFrom - b.priceFrom;
+    if (sort === "price") return (a.priceFrom || 1e9) - (b.priceFrom || 1e9);
     if (sort === "totonoi") return totonoiScore(b) - totonoiScore(a);
-    return b.wantCount - a.wantCount;
+    const want = b.wantCount - a.wantCount;
+    if (want) return want;
+    return a.name.localeCompare(b.name, "ko");
   });
   return list;
 }

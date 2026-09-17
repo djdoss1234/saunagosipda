@@ -1,33 +1,34 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "사우나고싶다란?" };
+export const metadata: Metadata = { title: "데이터와 한계" };
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="font-serif text-4xl">사우나고싶다란?</h1>
+    <div className="page-wrap max-w-2xl py-12">
+      <p className="kicker">About</p>
+      <h1 className="mt-3 font-serif text-4xl">사우나고싶다란?</h1>
       <p className="mt-6 text-[16px] leading-8 text-[var(--ink-soft)]">
-        일본의 사우나이키타이(サウナイキタイ)는 시설 검색, ‘이키타이’ 저장, 사활(방문 기록)이 한 몸으로 움직이는 커뮤니티입니다. 사우나고싶다는 그 구조를 한국의 찜질방·온천·호텔스파 문법으로 옮긴 사이트입니다.
+        일본 사우나이키타이의 찾기·가고싶어요·사활 구조를, 한국 목욕장업 인허가 목록 위에 올린 커뮤니티입니다.
       </p>
       <ul className="mt-8 space-y-4 text-[15px] leading-7 text-[var(--ink-soft)]">
         <li>
-          <strong className="text-[var(--ink)]">찾고</strong> — 지역, 유형, 24시간, 냉탕 온도, 노천·수면실 같은 매니악 조건으로 좁힙니다.
+          <strong className="text-[var(--ink)]">원천</strong> — 행정안전부 LOCALDATA 목욕장업(영업중) 전국 CSV. 시군구·시도 ALL이 400이어도 전국 파일에 광주·전남·인천이 들어 있습니다. 지자체 CSV는 전화 등 보조입니다.
         </li>
         <li>
-          <strong className="text-[var(--ink)]">가고싶어요</strong> — 이키타이 수에 해당하는 기대 지수. 아직 안 가본 탕을 저장합니다.
+          <strong className="text-[var(--ink)]">확실한 것</strong> — 상호, 주소, 업종, (있으면) 전화와 좌표.
         </li>
         <li>
-          <strong className="text-[var(--ink)]">사활</strong> — 다녀온 날의 온도와 먹은 것, 세트 리듬을 남깁니다. 별점보다 장면이 중요합니다.
+          <strong className="text-[var(--ink)]">비운 것</strong> — 온도, 요금, 영업시간, 남녀 구분, 업소 사진은 인허가에 없어서 표시하지 않습니다. 사활 중앙값이 생기면 온도만 올립니다.
         </li>
         <li>
-          <strong className="text-[var(--ink)]">혼잡 경향</strong> — 요일·시간대별 체감으로, 붐비지 않는 슬롯을 고릅니다.
+          <strong className="text-[var(--ink)]">대표 시드</strong> — 홈에 나오는 유명 탕 몇 곳은 편집 데모입니다. 사활이 쌓이면 그 온도가 이깁니다.
         </li>
       </ul>
       <p className="mt-8 text-sm text-[var(--muted)]">
-        현재 버전은 전국 주요 시설 샘플과 브라우저에 저장되는 리뷰로 동작하는 커뮤니티 프로토타입입니다.
+        광주·전남·인천 구멍은 LOCALDATA 전국 CSV(`file/download/public_baths/info`, orgCode 없음)로 메웠습니다. 시군구·시도 ALL(629/646)은 여전히 400입니다. 로그인·검수는 데모이며 운영자 권한이 분리되어 있지 않습니다.
       </p>
-      <Link href="/search" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-[var(--ember)] px-5 text-sm font-semibold text-white">
+      <Link href="/search" className="btn-primary btn mt-6">
         사우나 찾으러 가기
       </Link>
     </div>

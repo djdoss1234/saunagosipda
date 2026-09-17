@@ -1,26 +1,19 @@
-import { regionCoords } from "@/data/regions";
 import type { Facility, FacilitySubmission } from "@/lib/types";
 
-const COVER =
-  "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80";
-
 export function buildFacility(sub: FacilitySubmission): Facility {
-  const center = regionCoords[sub.regionId] ?? regionCoords.seoul;
-  const jitter = (n: number) => (n % 17) * 0.004 - 0.03;
-  const seed = sub.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   return {
     id: sub.facilityId ?? `user-${sub.id}`,
     name: sub.name.trim(),
-    nameEn: sub.name.trim(),
+    nameEn: "",
     type: sub.type,
     regionId: sub.regionId,
     district: sub.district.trim(),
     address: sub.address.trim(),
-    lat: center.lat + jitter(seed),
-    lng: center.lng + jitter(seed * 3),
-    phone: sub.phone.trim() || "미확인",
+    lat: 0,
+    lng: 0,
+    phone: sub.phone.trim() || "미기재",
     priceFrom: sub.priceFrom,
-    hours: sub.hours.trim() || "확인 필요",
+    hours: sub.hours.trim() || "영업시간 미확인",
     open24h: sub.hours.includes("24"),
     reservation: false,
     genderPolicy: sub.genderPolicy,
@@ -31,10 +24,10 @@ export function buildFacility(sub: FacilitySubmission): Facility {
     visitCount: 0,
     rating: 0,
     tags: ["이용자 제보", sub.type],
-    cover: COVER,
-    gallery: [COVER],
+    cover: "",
+    gallery: [],
     description: sub.description.trim(),
-    crowd: [1, 1, 2, 2, 3, 3, 2, 2, 3, 2, 1, 1],
+    crowd: [],
     totonoi: {
       outdoorRest: sub.outdoorRest,
       loop: sub.loop,

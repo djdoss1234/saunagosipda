@@ -24,12 +24,9 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
     return <p className="px-4 py-16 text-center text-sm text-[var(--muted)]">시설을 찾을 수 없습니다.</p>;
   }
 
-  const saunaValue = sauna || String(facility.saunas[0]?.tempC ?? 90);
-  const plungeValue = plunge || String(facility.plunges[0]?.tempC ?? 16);
-
   return (
     <form
-      className="mx-auto max-w-xl space-y-5 px-4 py-10"
+      className="page-wrap max-w-xl space-y-5 py-10"
       onSubmit={(e) => {
         e.preventDefault();
         if (!user) {
@@ -40,19 +37,30 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
           setError("사활은 20자 이상 적어 주세요. 온도 체감이나 동선을 남기면 다른 사람에게 도움이 됩니다.");
           return;
         }
+        const hot = sauna.trim() === "" ? null : Number(sauna);
+        const cold = plunge.trim() === "" ? null : Number(plunge);
+        if (hot !== null && (!Number.isFinite(hot) || hot < 30 || hot > 130)) {
+          setError("사우나 온도는 30–130 사이 숫자로 적어 주세요. 안 쟀으면 비워 두세요.");
+          return;
+        }
+        if (cold !== null && (!Number.isFinite(cold) || cold < 0 || cold > 45)) {
+          setError("냉탕 온도는 0–45 사이 숫자로 적어 주세요. 안 쟀으면 비워 두세요.");
+          return;
+        }
         setSaving(true);
         addVisit({
           facilityId,
           visitNumber: Number(visitNumber) || 1,
           body: `${body.trim()}\n\n외기욕: ${outdoor}`,
           food: food.trim() || undefined,
-          saunaTemps: [Number(saunaValue) || 0],
-          plungeTemps: [Number(plungeValue) || 0],
+          saunaTemps: hot === null ? [] : [hot],
+          plungeTemps: cold === null ? [] : [cold],
           photo: facility.cover,
         });
         router.push(`/saunas/${facilityId}`);
       }}
     >
+      <p className="kicker">Visit</p>
       <h1 className="font-serif text-3xl">{facility.name} 사활</h1>
       <p className="text-sm text-[var(--muted)]">다녀온 날의 온도, 물, 먹은 것까지. 짧은 일기처럼 남겨도 됩니다.</p>
 
@@ -79,8 +87,9 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
             id="sauna-t"
             type="number"
             inputMode="numeric"
-            value={saunaValue}
+            value={sauna}
             onChange={(e) => setSauna(e.target.value)}
+            placeholder="잰 값만. 예: 90"
             className="mt-1 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3"
           />
         </div>
@@ -92,8 +101,9 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
             id="plunge-t"
             type="number"
             inputMode="numeric"
-            value={plungeValue}
+            value={plunge}
             onChange={(e) => setPlunge(e.target.value)}
+            placeholder="잰 값만. 예: 16"
             className="mt-1 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3"
           />
           <p className="mt-1 text-xs text-[var(--muted)]">참고: 토토노이 권장 냉탕은 16–18°C</p>

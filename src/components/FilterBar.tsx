@@ -98,7 +98,7 @@ export function FilterBar({ resultCount }: { resultCount: number }) {
           ))}
         </select>
       </div>
-      <p className="text-sm text-[var(--muted)]">{resultCount}개 시설</p>
+      <p className="text-sm text-[var(--muted)]">{resultCount}개 시설 · 입장·편의·외기욕은 시드/사활이 있는 곳만</p>
     </div>
   );
 }

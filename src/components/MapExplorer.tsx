@@ -5,13 +5,26 @@ import { useApp } from "@/context/AppState";
 import { regionGroups, regions } from "@/data/regions";
 import { formatCount } from "@/lib/format";
 import Link from "next/link";
+import { useMemo } from "react";
 
 export function MapExplorer() {
   const { catalog } = useApp();
+  const counts = useMemo(() => {
+    const n = new Map<string, { places: number; wants: number }>();
+    for (const f of catalog) {
+      const cur = n.get(f.regionId) ?? { places: 0, wants: 0 };
+      cur.places += 1;
+      cur.wants += f.wantCount;
+      n.set(f.regionId, cur);
+    }
+    return n;
+  }, [catalog]);
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-serif text-3xl">토토노이 지도</h1>
-      <p className="mt-2 text-sm text-[var(--muted)]">점 숫자는 토토노이 루프 적합 점수입니다. 아래는 시·도 목록입니다.</p>
+    <div className="page-wrap py-10">
+      <p className="kicker">Map</p>
+      <h1 className="mt-2 font-serif text-3xl">토토노이 지도</h1>
+      <p className="mt-2 text-sm text-[var(--muted)]">대표 시설은 점수, 인허가는 작은 점입니다. 좌표가 없는 업소는 그리지 않습니다.</p>
       <div className="mt-8">
         <TotonoiMap />
       </div>
@@ -23,17 +36,12 @@ export function MapExplorer() {
               {regions
                 .filter((r) => r.group === group)
                 .map((r) => {
-                  const list = catalog.filter((f) => f.regionId === r.id);
-                  const wants = list.reduce((s, f) => s + f.wantCount, 0);
+                  const stat = counts.get(r.id) ?? { places: 0, wants: 0 };
                   return (
-                    <Link
-                      key={r.id}
-                      href={`/search?region=${r.id}`}
-                      className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow)] transition hover:-translate-y-0.5"
-                    >
+                    <Link key={r.id} href={`/search?region=${r.id}`} className="panel p-5 transition duration-200 hover:-translate-y-0.5">
                       <p className="font-serif text-2xl">{r.name}</p>
                       <p className="mt-2 text-sm text-[var(--muted)]">
-                        {list.length}개 시설 · 가고싶어요 {formatCount(wants)}
+                        {stat.places}개 시설 · 가고싶어요 {formatCount(stat.wants)}
                       </p>
                     </Link>
                   );

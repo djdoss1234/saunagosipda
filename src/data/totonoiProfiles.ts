@@ -1,3 +1,4 @@
+import { isLicensedId } from "@/data/places";
 import type { Facility, TotonoiProfile } from "@/lib/types";
 
 const fallback: TotonoiProfile = {
@@ -230,5 +231,8 @@ export const totonoiById: Record<string, TotonoiProfile> = {
 };
 
 export function withTotonoi(facility: Omit<Facility, "totonoi">): Facility {
-  return { ...facility, totonoi: totonoiById[facility.id] ?? fallback };
+  const profile = totonoiById[facility.id];
+  if (profile) return { ...facility, totonoi: profile };
+  if (isLicensedId(facility.id)) return { ...facility };
+  return { ...facility, totonoi: fallback };
 }

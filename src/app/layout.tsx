@@ -1,7 +1,9 @@
+import { BottomNav } from "@/components/BottomNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Providers } from "@/components/Providers";
-import type { Metadata } from "next";
+import { siteOrigin } from "@/lib/site";
+import type { Metadata, Viewport } from "next";
 import { Noto_Sans_KR, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 
@@ -17,23 +19,44 @@ const serif = Noto_Serif_KR({
   weight: ["400", "600", "700"],
 });
 
+const siteUrl = siteOrigin();
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "사우나고싶다 — 한국 사우나 탐방 커뮤니티",
     template: "%s · 사우나고싶다",
   },
   description:
-    "찜질방·온천·호텔스파를 검색하고, 가고싶어요를 누르고, 사활을 남기는 한국형 사우나 리뷰 사이트.",
+    "전국 목욕장업 인허가 목록에서 찜질방·온천·사우나를 찾고, 가고싶어요와 사활로 온도를 채우는 한국형 사우나 커뮤니티.",
+  openGraph: {
+    locale: "ko_KR",
+    type: "website",
+    siteName: "사우나고싶다",
+    url: siteUrl,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f5f0e1",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ko" className={`${sans.variable} ${serif.variable} h-full antialiased`}>
-      <body className="flex min-h-dvh flex-col">
+      <body className="flex min-h-dvh flex-col pb-[4.75rem] md:pb-0">
+        <a href="#main" className="skip-link">
+          본문으로 건너뛰기
+        </a>
         <Providers>
           <SiteHeader />
-          <main className="flex-1">{children}</main>
+          <main id="main" className="flex-1">
+            {children}
+          </main>
           <SiteFooter />
+          <BottomNav />
         </Providers>
       </body>
     </html>

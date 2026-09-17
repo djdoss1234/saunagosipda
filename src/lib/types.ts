@@ -5,7 +5,7 @@ export type FacilityType =
   | "사우나"
   | "워터파크스파";
 
-export type GenderPolicy = "남녀분리" | "남성전용" | "여성전용" | "혼성";
+export type GenderPolicy = "남녀분리" | "남성전용" | "여성전용" | "혼성" | "미확인";
 
 export type RoomGender = "남" | "여" | "공용";
 

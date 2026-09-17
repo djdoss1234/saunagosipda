@@ -17,7 +17,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <form
-      className="mx-auto max-w-md space-y-4 px-4 py-12"
+      className="page-wrap max-w-md space-y-4 py-12 sm:py-16"
       onSubmit={(e) => {
         e.preventDefault();
         if (!name.trim() || !email.includes("@") || password.length < 4) {
@@ -28,6 +28,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         router.push(next);
       }}
     >
+      <p className="kicker">Account</p>
       <h1 className="font-serif text-3xl">{mode === "login" ? "로그인" : "회원가입"}</h1>
       <p className="text-sm text-[var(--muted)]">데모 계정입니다. 정보는 이 브라우저에만 저장됩니다.</p>
       <div>
@@ -39,7 +40,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           autoComplete="nickname"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3"
+          className="field mt-1"
         />
       </div>
       <div>
@@ -52,7 +53,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3"
+          className="field mt-1"
         />
       </div>
       <div>
@@ -66,7 +67,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             autoComplete={mode === "login" ? "current-password" : "new-password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3 pr-20"
+            className="field pr-20"
           />
           <button
             type="button"
@@ -77,8 +78,12 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           </button>
         </div>
       </div>
-      {error ? <p className="text-sm text-[var(--ember-deep)]">{error}</p> : null}
-      <button type="submit" className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[var(--ember)] text-sm font-semibold text-white">
+      {error ? (
+        <p className="text-sm text-[var(--ember-deep)]" role="alert">
+          {error}
+        </p>
+      ) : null}
+      <button type="submit" className="btn-primary btn w-full">
         {mode === "login" ? "들어가기" : "계정 만들기"}
       </button>
     </form>
