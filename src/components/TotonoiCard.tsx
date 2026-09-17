@@ -52,7 +52,7 @@ export function TotonoiCard({ facility }: { facility: Facility }) {
       </div>
       <dl className="mt-5 grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (
-          <div key={row.label} className="rounded-xl bg-[var(--cream-2)] px-3 py-2">
+          <div key={row.label} className="border border-[var(--border)] bg-[var(--cream-2)] px-3 py-2">
             <dt className="text-xs text-[var(--muted)]">{row.label}</dt>
             <dd className="text-sm font-medium">{row.value}</dd>
           </div>

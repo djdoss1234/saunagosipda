@@ -26,7 +26,7 @@ export function FilterBar({ resultCount }: { resultCount: number }) {
   }
 
   const selectClass =
-    "min-h-11 cursor-pointer rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--ink)]";
+    "min-h-11 cursor-pointer border border-[var(--border)] bg-[color-mix(in_srgb,var(--cream-2)_55%,var(--surface))] px-3 text-sm text-[var(--ink)]";
 
   return (
     <div className="space-y-3">
@@ -63,28 +63,28 @@ export function FilterBar({ resultCount }: { resultCount: number }) {
             <option key={t}>{t}</option>
           ))}
         </select>
-        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-sm">
+        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 border border-[var(--border)] px-3 text-sm">
           <input
             type="checkbox"
-            className="size-4 accent-[var(--ember)]"
+            className="size-4 accent-[var(--ink)]"
             checked={params.get("open24h") === "1"}
             onChange={(e) => set("open24h", e.target.checked ? "1" : undefined)}
           />
           지금 24시간
         </label>
-        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-sm">
+        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 border border-[var(--border)] px-3 text-sm">
           <input
             type="checkbox"
-            className="size-4 accent-[var(--ember)]"
+            className="size-4 accent-[var(--ink)]"
             checked={params.get("outdoor") === "1"}
             onChange={(e) => set("outdoor", e.target.checked ? "1" : undefined)}
           />
           외기욕 있음
         </label>
-        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-sm">
+        <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 border border-[var(--border)] px-3 text-sm">
           <input
             type="checkbox"
-            className="size-4 accent-[var(--ember)]"
+            className="size-4 accent-[var(--ink)]"
             checked={params.get("totonoiPlunge") === "1"}
             onChange={(e) => set("totonoiPlunge", e.target.checked ? "1" : undefined)}
           />

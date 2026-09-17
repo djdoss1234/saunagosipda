@@ -29,7 +29,7 @@ export function VisitCard({ visit }: { visit: Visit }) {
           </time>
         </div>
         <p className="mt-1 text-xs text-[var(--muted)]">{visit.visitNumber}번째 방문</p>
-        <Link href={`/saunas/${facility.id}`} className="mt-3 inline-block font-serif text-lg text-[var(--ink)] hover:text-[var(--ember-deep)]">
+        <Link href={`/saunas/${facility.id}`} className="mt-3 inline-block font-serif text-lg text-[var(--ink)] hover:opacity-70">
           {facility.name}
         </Link>
         <p className="text-xs text-[var(--muted)]">
@@ -37,26 +37,26 @@ export function VisitCard({ visit }: { visit: Visit }) {
         </p>
         <p className="mt-3 text-sm leading-relaxed text-[var(--ink-soft)]">{visit.body}</p>
         {visit.food ? (
-          <p className="mt-3 rounded-xl bg-[var(--cream-2)] px-3 py-2 text-sm text-[var(--ink)]">
+          <p className="mt-3 border border-[var(--border)] px-3 py-2 text-sm text-[var(--ink)]">
             <span className="text-xs font-semibold text-[var(--muted)]">오늘 먹은 것 · </span>
             {visit.food}
           </p>
         ) : null}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {visit.saunaTemps.map((t) => (
-            <span key={`h-${t}`} className="rounded-full bg-[var(--ember-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--ember-deep)]">
+            <span key={`h-${t}`} className="border border-[var(--border)] px-2 py-1 text-xs text-[var(--ember-deep)]">
               사우나 {t}°C
             </span>
           ))}
           {visit.plungeTemps.map((t) => (
-            <span key={`c-${t}`} className="rounded-full bg-[var(--moss-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--moss)]">
+            <span key={`c-${t}`} className="border border-[var(--border)] px-2 py-1 text-xs text-[var(--moss)]">
               냉탕 {t}°C
             </span>
           ))}
         </div>
         <button
           type="button"
-          className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm text-[var(--ink-soft)] hover:text-[var(--ember)]"
+          className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]"
           aria-label={`좋아요 ${visit.likes}`}
           onClick={() => likeVisit(visit.id)}
         >

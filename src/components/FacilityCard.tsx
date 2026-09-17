@@ -11,7 +11,7 @@ function coverTone(id: string) {
   return n % 3;
 }
 
-const tiles = ["bg-[#3b2418]", "bg-[#243028]", "bg-[#2a221c]"];
+const tiles = ["bg-[#2a241f]", "bg-[#4a4038]", "bg-[#6b5c4e]"];
 
 export function FacilityCover({
   facility,
@@ -37,11 +37,11 @@ export function TempPills({ facility }: { facility: Facility }) {
   const cold = Math.min(...facility.plunges.map((s) => s.tempC));
   return (
     <div className="flex flex-wrap gap-1.5">
-      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--ember-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--ember-deep)]">
+      <span className="inline-flex items-center gap-1 border border-[var(--border)] px-2 py-1 text-xs text-[var(--ember-deep)]">
         <Flame className="size-3.5" aria-hidden />
         {hot}°C
       </span>
-      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--moss-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--moss)]">
+      <span className="inline-flex items-center gap-1 border border-[var(--border)] px-2 py-1 text-xs text-[var(--moss)]">
         <Droplets className="size-3.5" aria-hidden />
         {cold}°C
       </span>
@@ -57,9 +57,9 @@ export function FacilityCard({ facility, rank }: { facility: Facility; rank?: nu
   return (
     <Link
       href={`/saunas/${facility.id}`}
-      className="group flex items-start gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 transition hover:border-[var(--ember)]"
+      className="group flex items-start gap-4 border border-[var(--border)] bg-[var(--surface)] p-4 transition hover:border-[var(--ink)]"
     >
-      <div className="hidden size-16 shrink-0 overflow-hidden rounded-xl sm:block">
+      <div className="hidden size-16 shrink-0 overflow-hidden sm:block">
         <FacilityCover facility={facility} className="h-full min-h-0" />
       </div>
       <div className="min-w-0 flex-1">

@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-[var(--border)] py-8 text-sm text-[var(--muted)]">
+    <footer className="mt-auto border-t border-[var(--border)] py-10 text-sm text-[var(--muted)]">
       <div className="page-wrap flex flex-wrap items-center justify-between gap-4">
-        <p>사우나고싶다 · 목욕장업 인허가</p>
-        <nav className="flex flex-wrap gap-4">
+        <p>사우나고싶다</p>
+        <nav className="flex flex-wrap gap-6">
           <Link href="/about" className="hover:text-[var(--ink)]">
             데이터
           </Link>

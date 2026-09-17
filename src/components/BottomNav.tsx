@@ -20,7 +20,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="주요 메뉴"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[color-mix(in_srgb,var(--cream)_92%,transparent)] backdrop-blur-md md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[var(--cream)] md:hidden"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1">
         {items.map((item) => {
@@ -32,8 +32,8 @@ export function BottomNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] transition ${
-                  active ? "bg-[var(--ember-soft)] text-[var(--ember-deep)]" : "text-[var(--muted)]"
+                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 text-[11px] tracking-wide transition ${
+                  active ? "text-[var(--ink)]" : "text-[var(--muted)]"
                 }`}
               >
                 <Icon className="size-5" aria-hidden strokeWidth={active ? 2.4 : 1.8} />

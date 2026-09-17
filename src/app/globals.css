@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --cream: #f5f0e1;
-  --cream-2: #e8dcc8;
-  --surface: #fffdf8;
-  --ink: #1c1410;
-  --ink-soft: #3f352d;
-  --muted: #5c5148;
-  --border: #d8cbb8;
-  --ember: #c2410c;
-  --ember-deep: #9a3412;
-  --ember-soft: #f4d4c0;
-  --moss: #3f5640;
-  --moss-soft: #d7e6db;
-  --gold: #b5651d;
-  --shadow: 0 1px 0 rgba(255, 253, 248, 0.7) inset, 0 14px 36px rgba(28, 20, 16, 0.08);
-  --shadow-lg: 0 1px 0 rgba(255, 253, 248, 0.55) inset, 0 28px 56px rgba(28, 20, 16, 0.14);
-  --radius: 1.5rem;
+  --cream: #f0ebe3;
+  --cream-2: #e6dfd4;
+  --surface: #f7f4ee;
+  --ink: #161311;
+  --ink-soft: #3d3731;
+  --muted: #6e675e;
+  --border: #d6cfc4;
+  --ember: #7a3e24;
+  --ember-deep: #5c2e1a;
+  --ember-soft: #eadfd6;
+  --moss: #3d4a3c;
+  --moss-soft: #dce3d8;
+  --gold: #8a6a45;
+  --shadow: none;
+  --shadow-lg: none;
+  --radius: 0.15rem;
   --font-sans: var(--font-noto-sans);
   --font-serif: var(--font-noto-serif);
 }
@@ -68,7 +68,7 @@ summary {
 }
 
 :focus-visible {
-  outline: 2px solid var(--ember);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 
@@ -105,24 +105,24 @@ summary {
   border: 1px solid var(--border);
   background: var(--surface);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
 }
 
 .chip {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
-  border-radius: 999px;
+  border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  background: transparent;
   padding: 0 0.9rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
   transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
 }
 
 .chip:hover {
-  border-color: var(--ember);
-  color: var(--ember-deep);
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
 .btn {
@@ -131,11 +131,12 @@ summary {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  border-radius: 999px;
+  border-radius: var(--radius);
   padding: 0 1.15rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease, opacity 180ms ease;
 }
 
 .btn:active {
@@ -143,12 +144,12 @@ summary {
 }
 
 .btn-primary {
-  background: var(--ember);
-  color: #fff;
+  background: var(--ink);
+  color: var(--cream);
 }
 
 .btn-primary:hover {
-  background: var(--ember-deep);
+  background: #2a2420;
 }
 
 .btn-ink {
@@ -167,35 +168,34 @@ summary {
 }
 
 .btn-ghost:hover {
-  border-color: var(--ember);
+  border-color: var(--ink);
 }
 
 .page-wrap {
   margin-inline: auto;
-  max-width: 72rem;
+  max-width: 76rem;
   padding-inline: 1.25rem;
 }
 
 @media (min-width: 768px) {
   .page-wrap {
-    padding-inline: 1.75rem;
+    padding-inline: 2.5rem;
   }
 }
 
 .field {
   width: 100%;
   border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--cream-2) 55%, var(--surface));
+  border-radius: var(--radius);
   padding: 0.75rem 0.9rem;
   color: var(--ink);
-  transition: border-color 180ms ease, box-shadow 180ms ease;
+  transition: border-color 180ms ease;
 }
 
 .field:focus {
   outline: none;
-  border-color: var(--ember);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ember) 22%, transparent);
+  border-color: var(--ink);
 }
 
 .kicker {

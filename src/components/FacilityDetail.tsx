@@ -98,7 +98,7 @@ export function FacilityDetail({ facility, related }: { facility: Facility; rela
                 <h2 className="font-serif text-2xl">편의</h2>
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {facility.amenities.map((a) => (
-                    <li key={a} className="rounded-full border border-[var(--border)] px-3 py-1.5 text-sm">
+                    <li key={a} className="border border-[var(--border)] px-3 py-1.5 text-sm">
                       {a}
                     </li>
                   ))}
@@ -122,7 +122,7 @@ export function FacilityDetail({ facility, related }: { facility: Facility; rela
                 <ul className="mt-4 space-y-2">
                   {related.map((f) => (
                     <li key={f.id}>
-                      <Link href={`/saunas/${f.id}`} className="text-sm hover:text-[var(--ember-deep)]">
+                      <Link href={`/saunas/${f.id}`} className="text-sm hover:text-[var(--ink)]">
                         {f.name} · {f.district}
                       </Link>
                     </li>
@@ -160,7 +160,7 @@ export function FacilityDetail({ facility, related }: { facility: Facility; rela
                 <div>
                   <dt className="text-[var(--muted)]">전화</dt>
                   <dd>
-                    <a href={phoneLink} className="hover:text-[var(--ember-deep)]">
+                    <a href={phoneLink} className="hover:text-[var(--ink)]">
                       {facility.phone}
                     </a>
                   </dd>
@@ -172,7 +172,7 @@ export function FacilityDetail({ facility, related }: { facility: Facility; rela
               {facility.visitCount > 0 ? <p className="text-xs text-[var(--muted)]">방문 {formatCount(facility.visitCount)}</p> : null}
             </div>
             <a
-              className="mt-4 inline-flex min-h-11 items-center text-sm text-[var(--ember-deep)]"
+              className="mt-4 inline-flex min-h-11 items-center text-sm text-[var(--muted)] hover:text-[var(--ink)]"
               href={`https://map.kakao.com/link/search/${encodeURIComponent(facility.address)}`}
               target="_blank"
               rel="noreferrer"

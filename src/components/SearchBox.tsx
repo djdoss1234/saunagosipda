@@ -51,12 +51,8 @@ export function SearchBox({
   return (
     <div ref={boxRef} className="relative w-full">
       <form
-        className={`flex overflow-hidden rounded-full border bg-[var(--surface)] ${
+        className={`flex overflow-hidden border border-[var(--border)] bg-[color-mix(in_srgb,var(--cream-2)_55%,var(--surface))] ${
           size === "lg" ? "h-14" : "h-12"
-        } ${
-          tone === "hero"
-            ? "border-white/20 shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
-            : "border-[var(--border)] shadow-[var(--shadow)]"
         }`}
         onSubmit={(e) => {
           e.preventDefault();
@@ -108,7 +104,7 @@ export function SearchBox({
         />
         <button
           type="submit"
-          className="m-1 inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full bg-[var(--ember)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--ember-deep)]"
+          className="inline-flex h-full min-w-11 cursor-pointer items-center justify-center bg-[var(--ink)] px-5 text-xs font-medium tracking-widest text-[var(--cream)] transition hover:bg-[#2a2420]"
         >
           <Search className="mr-1.5 size-4" aria-hidden />
           검색
@@ -118,7 +114,7 @@ export function SearchBox({
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] py-2 shadow-[var(--shadow-lg)]"
+          className="absolute z-30 mt-1 w-full overflow-hidden border border-[var(--border)] bg-[var(--surface)] py-1"
         >
           {hits.map((hit, i) => (
             <li key={`${hit.kind}-${hit.id}`} id={`${listId}-opt-${i}`} role="option" aria-selected={i === active}>

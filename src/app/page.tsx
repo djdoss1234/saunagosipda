@@ -20,42 +20,44 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="border-b border-[var(--border)] bg-[var(--surface)]">
-        <div className="page-wrap py-12 sm:py-16">
-          <h1 className="font-serif text-4xl leading-tight text-[var(--ink)] sm:text-5xl">사우나고싶다</h1>
-          <p className="mt-3 text-sm text-[var(--muted)]">전국 목욕장업 {formatCount(count)}곳</p>
-          <div className="mt-8 max-w-xl">
-            <SearchBox autoFocus />
+      <section className="border-b border-[var(--border)]">
+        <div className="page-wrap grid gap-10 py-16 sm:py-24 lg:grid-cols-[1fr_minmax(0,28rem)] lg:items-end">
+          <div>
+            <h1 className="font-serif text-5xl leading-[1.15] text-[var(--ink)] sm:text-6xl">사우나고싶다</h1>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-[var(--muted)]">전국 목욕장업 {formatCount(count)}곳</p>
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {quick.map((chip) => (
-              <Link key={chip.href} href={chip.href} className="chip min-h-11 py-0 text-sm">
-                {chip.label}
-              </Link>
-            ))}
+          <div>
+            <SearchBox autoFocus />
+            <div className="mt-4 flex flex-wrap gap-2">
+              {quick.map((chip) => (
+                <Link key={chip.href} href={chip.href} className="chip min-h-11 py-0 text-sm">
+                  {chip.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="page-wrap grid gap-12 py-12 lg:grid-cols-[1fr_280px]">
+      <div className="page-wrap grid gap-16 py-16 lg:grid-cols-[1fr_220px]">
         <section>
           <div className="flex items-end justify-between gap-4">
-            <h2 className="font-serif text-2xl">최근 방문</h2>
-            <Link href="/visits" className="text-sm text-[var(--ember-deep)]">
+            <h2 className="font-serif text-3xl">최근 방문</h2>
+            <Link href="/visits" className="text-sm text-[var(--muted)] hover:text-[var(--ink)]">
               더 보기
             </Link>
           </div>
-          <div className="mt-6 grid gap-6">
+          <div className="mt-8 grid gap-6">
             {latest.map((v) => (
               <VisitCard key={v.id} visit={v} />
             ))}
           </div>
         </section>
         <aside>
-          <h2 className="font-serif text-xl">지역</h2>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <h2 className="font-serif text-2xl">지역</h2>
+          <div className="mt-6 flex flex-col gap-1">
             {regions.map((r) => (
-              <Link key={r.id} href={`/search?region=${r.id}`} className="chip min-h-10 py-0">
+              <Link key={r.id} href={`/search?region=${r.id}`} className="py-1.5 text-sm text-[var(--muted)] hover:text-[var(--ink)]">
                 {r.name}
               </Link>
             ))}

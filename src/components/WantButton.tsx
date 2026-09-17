@@ -15,10 +15,10 @@ export function WantButton({ facilityId, baseCount }: { facilityId: string; base
     <button
       type="button"
       aria-pressed={on}
-      className={`inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full px-5 text-sm font-semibold transition ${
+      className={`inline-flex min-h-12 cursor-pointer items-center gap-2 px-5 text-xs font-medium tracking-widest transition ${
         on
-          ? "bg-[var(--ember)] text-white"
-          : "border border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ember)]"
+          ? "bg-[var(--ink)] text-[var(--cream)]"
+          : "border border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)]"
       }`}
       onClick={() => {
         const ok = toggleWant(facilityId);

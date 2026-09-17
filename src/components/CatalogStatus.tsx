@@ -21,7 +21,7 @@ export function CatalogStatus({ overlay: given }: { overlay?: CatalogOverlay }) 
   const data = live ?? overlay;
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--ink-soft)]">
+    <div className="border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--ink-soft)]">
       <p>
         인허가 {when(data.fetchedAt)}
         {data.fetchedAt ? ` · 폐업 ${formatCount(data.closedIds.length)} · 신규 ${formatCount(data.added.length)}` : ""}

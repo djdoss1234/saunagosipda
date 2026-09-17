@@ -157,7 +157,7 @@ export function ReviewForm({ facilityId }: { facilityId: string }) {
       <button
         type="submit"
         disabled={saving}
-        className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center rounded-full bg-[var(--ember)] text-sm font-semibold text-white hover:bg-[var(--ember-deep)] disabled:opacity-70"
+        className="btn-primary btn w-full disabled:opacity-70"
       >
         {saving ? "저장 중…" : "방문 등록"}
       </button>

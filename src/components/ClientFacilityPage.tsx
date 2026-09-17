@@ -31,7 +31,7 @@ export function ClientFacilityPage({ id }: { id: string }) {
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="font-serif text-3xl">시설을 찾을 수 없습니다</h1>
         <p className="mt-3 text-sm text-[var(--muted)]">검수 전이거나, 이 브라우저에 없는 제보 시설일 수 있습니다.</p>
-        <Link href="/search" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-[var(--ember)] px-5 text-sm font-semibold text-white">
+        <Link href="/search" className="btn-primary btn mt-6">
           검색으로
         </Link>
       </div>

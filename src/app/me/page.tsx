@@ -12,7 +12,7 @@ export default function MePage() {
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <h1 className="font-serif text-3xl">내 기록</h1>
         <p className="mt-3 text-sm text-[var(--muted)]">가고싶어요와 방문 기록을 보려면 로그인하세요.</p>
-        <Link href="/login?next=/me" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-[var(--ember)] px-5 text-sm font-semibold text-white">
+        <Link href="/login?next=/me" className="btn-primary btn mt-6">
           로그인
         </Link>
       </div>
