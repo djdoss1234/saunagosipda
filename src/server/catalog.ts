@@ -1,6 +1,6 @@
 import { licensedPlaces } from "@/data/places";
 import { decodeCsvBytes, diffCatalog, emptyOverlay, NATIONWIDE_CSV, parseNationwide, type CatalogOverlay } from "@/lib/localdata";
-import { readCatalogOverlay, writeCatalogOverlay } from "@/server/store";
+import { writeCatalogOverlay } from "@/server/store";
 
 export async function syncNationwide(): Promise<CatalogOverlay> {
   const res = await fetch(NATIONWIDE_CSV, {

@@ -1,98 +1,17 @@
-export type FacilityType =
-  | "찜질방"
-  | "온천"
-  | "호텔스파"
-  | "사우나"
-  | "워터파크스파";
+export type PlaceType = "찜질방" | "온천" | "호텔스파" | "사우나" | "워터파크스파";
+/** 인허가 임포트(lib/localdata)가 쓰는 이름. */
+export type FacilityType = PlaceType;
 
-export type GenderPolicy = "남녀분리" | "남성전용" | "여성전용" | "혼성" | "미확인";
-
-export type RoomGender = "남" | "여" | "공용";
-
-export type SaunaRoom = {
-  name: string;
-  tempC: number;
-  type: string;
-  gender: RoomGender;
-};
-
-export type Plunge = {
-  name: string;
-  tempC: number;
-  gender: RoomGender;
-};
-
-export type OutdoorRest = "없음" | "내기욕만" | "있음" | "우수";
-export type LoopQuality = "끊김" | "보통" | "좋음";
-export type HumidityStyle = "건식" | "습식가능" | "로우류";
-export type PlungeDepth = "얕음" | "어깨" | "깊음";
-
-/** 토토노이 루프(사우나→냉탕→외기욕)를 시설 단위로 비교하기 위한 프로필 */
-export type TotonoiProfile = {
-  outdoorRest: OutdoorRest;
-  loop: LoopQuality;
-  humidity: HumidityStyle;
-  tvInSauna: boolean;
-  restLieDown: boolean;
-  natureView: boolean;
-  plungeDepth: PlungeDepth;
-};
-
-export type Facility = {
+/** 시설은 부가 정보다. 인허가에 있는 것만 담는다. 온도·요금·영업시간은 지어내지 않는다. */
+export type Place = {
   id: string;
   name: string;
-  nameEn: string;
-  type: FacilityType;
+  type: PlaceType;
   regionId: string;
   district: string;
   address: string;
-  lat: number;
-  lng: number;
-  phone: string;
-  priceFrom: number;
-  hours: string;
-  open24h: boolean;
-  reservation: boolean;
-  genderPolicy: GenderPolicy;
-  saunas: SaunaRoom[];
-  plunges: Plunge[];
-  amenities: string[];
-  wantCount: number;
-  visitCount: number;
-  rating: number;
-  tags: string[];
-  cover: string;
-  gallery: string[];
-  description: string;
-  crowd: number[];
-  featured?: boolean;
-  totonoi?: TotonoiProfile;
-};
-
-export type Visit = {
-  id: string;
-  facilityId: string;
-  userId: string;
-  userName: string;
-  date: string;
-  visitNumber: number;
-  body: string;
-  food?: string;
-  saunaTemps: number[];
-  plungeTemps: number[];
-  likes: number;
-  photo: string;
-};
-
-export type Article = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  author: string;
-  date: string;
-  cover: string;
-  minutes: number;
-  body: string[];
+  /** 인허가 원천에 있을 때만. 시드 데모 번호는 넣지 않는다. */
+  phone?: string;
 };
 
 export type Region = {
@@ -104,38 +23,46 @@ export type Region = {
 export type UserProfile = {
   id: string;
   name: string;
-  email: string;
 };
 
-export type SubmissionStatus = "pending" | "approved" | "rejected";
+/** 한 세트 = 사우나 → 냉탕 → 외기욕. 단위는 모두 초(타이머 정밀도 그대로). */
+export type SaunaSet = {
+  saunaSec: number;
+  plungeSec: number;
+  restSec: number;
+};
 
-export type FacilitySubmission = {
+export type Totonoi = 1 | 2 | 3 | 4 | 5;
+
+export type RecordSource = "manual" | "locker" | "timer" | "watch" | "legacy";
+
+export type SessionRecord = {
   id: string;
-  status: SubmissionStatus;
+  userId: string;
+  userName: string;
+  placeId?: string;
+  placeName: string;
+  /** YYYY-MM-DD (현지 날짜) */
+  date: string;
   createdAt: string;
-  reviewedAt?: string;
-  rejectReason?: string;
-  submitterName: string;
-  submitterId: string;
-  name: string;
-  regionId: string;
-  district: string;
-  address: string;
-  type: FacilityType;
-  phone: string;
-  priceFrom: number;
-  hours: string;
-  genderPolicy: GenderPolicy;
-  saunaTemp: number;
-  plungeTemp: number;
-  outdoorRest: OutdoorRest;
-  loop: LoopQuality;
-  humidity: HumidityStyle;
-  plungeDepth: PlungeDepth;
-  restLieDown: boolean;
-  natureView: boolean;
-  tvInSauna: boolean;
-  description: string;
-  source: string;
-  facilityId?: string;
+  sets: SaunaSet[];
+  totonoi: Totonoi;
+  saunaTempC?: number;
+  plungeTempC?: number;
+  memo?: string;
+  food?: string;
+  public: boolean;
+  /**
+   * 어떻게 잰 기록인가.
+   * manual = 나와서 기억으로 · locker = 입장~퇴장(머문 시간)만 측정 · timer = 단계별 측정 · watch = 워치 · legacy = 예전 앱
+   * 세트당 시간이 실측인 건 timer·watch뿐. 나머지는 루틴으로 채운 추정값이다.
+   */
+  source: RecordSource;
+  /** 입장~퇴장 분(사물함 타이머로 잰 값). 샤워·탕·세신 포함이라 사우나 시간이 아니다. */
+  stayMin?: number;
+  /** 입장 시각 ISO. 아침/밤 구분용. */
+  startedAt?: string;
+  likes: number;
+  /** 로컬 전용: 공개 기록이 서버에 올라갔는지 */
+  synced?: boolean;
 };

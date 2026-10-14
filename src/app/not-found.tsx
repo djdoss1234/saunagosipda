@@ -2,11 +2,11 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="page-wrap max-w-md py-20 text-center">
-      <h1 className="font-serif text-3xl">페이지를 찾을 수 없습니다</h1>
-      <p className="mt-3 text-sm text-[var(--muted)]">주소가 바뀌었거나, 아직 등록되지 않은 시설입니다.</p>
-      <Link href="/" className="btn-primary btn mt-6">
-        홈으로
+    <div className="grid justify-items-center gap-4 py-20 text-center">
+      <h1 className="text-2xl font-bold">페이지를 찾을 수 없어요</h1>
+      <p className="text-sm text-muted">주소가 바뀌었거나 목록에 없는 시설이에요.</p>
+      <Link href="/" className="btn-ink px-6">
+        내 기록으로
       </Link>
     </div>
   );

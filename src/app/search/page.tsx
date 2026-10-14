@@ -1,10 +1,8 @@
-import { SearchResults } from "@/components/SearchResults";
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 
-export default function SearchPage() {
-  return (
-    <Suspense fallback={<p className="page-wrap py-16 text-center text-sm text-[var(--muted)]">검색 준비 중…</p>}>
-      <SearchResults />
-    </Suspense>
-  );
+// 예전 링크(/search?q=…) 호환
+export default async function Page({ searchParams }: PageProps<"/search">) {
+  const sp = await searchParams;
+  const q = typeof sp.q === "string" ? sp.q : "";
+  redirect(q ? `/saunas?q=${encodeURIComponent(q)}` : "/saunas");
 }

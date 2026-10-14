@@ -1,168 +1,173 @@
 "use client";
 
-import { facilities } from "@/data/facilities";
-import { seedVisits } from "@/data/visits";
-import {
-  applyCatalogOverlay,
-  applyVisitFacts,
-  approveSubmission as approveInHarness,
-  emptyState,
-  isPopulated,
-  mergeCatalog,
-  mergeVisits,
-  parseStorage,
-  rejectSubmission as rejectInHarness,
-  STORAGE_KEY,
-  submitFacility as submitInHarness,
-  systemClock,
-  type CommunityState,
-  type SubmitDraft,
-} from "@/harness/community";
-import { emptyOverlay, type CatalogOverlay } from "@/lib/localdata";
-import { buildFacility } from "@/lib/submission";
-import type { Facility, UserProfile, Visit } from "@/lib/types";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { emptyState, LEGACY_KEYS, parseStorage, STORAGE_KEY, upsertMine, type LocalState } from "@/harness/community";
+import { createRecord, systemClock, type RecordDraft } from "@/harness/records";
+import type { SessionRecord, UserProfile } from "@/lib/types";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 type AppState = {
   ready: boolean;
   user: UserProfile | null;
+  /** 내 기록 (비공개 포함), 최신순 아님 — 화면에서 정렬 */
+  records: SessionRecord[];
   wants: string[];
-  visits: Visit[];
-  submissions: CommunityState["submissions"];
-  catalog: Facility[];
-  overlay: CatalogOverlay;
-  pendingCount: number;
-  login: (name: string, email: string) => void;
-  logout: () => void;
-  toggleWant: (facilityId: string) => boolean;
-  addVisit: (visit: Omit<Visit, "id" | "userId" | "userName" | "likes" | "date"> & { photo?: string }) => void;
-  likeVisit: (id: string) => void;
-  submitFacility: (draft: SubmitDraft) => { ok: boolean; message: string };
-  approveSubmission: (id: string) => { ok: boolean; message: string };
-  rejectSubmission: (id: string, reason: string) => { ok: boolean; message: string };
+  liked: string[];
+  feed: SessionRecord[];
+  feedReady: boolean;
+  setName: (name: string) => UserProfile;
+  saveRecord: (draft: RecordDraft, opts?: { id?: string; user?: UserProfile }) => { ok: true; record: SessionRecord } | { ok: false; message: string };
+  deleteRecord: (id: string) => void;
+  toggleWant: (placeId: string) => void;
+  like: (id: string) => void;
+  refreshFeed: () => void;
+  resetAll: () => void;
 };
 
 const Ctx = createContext<AppState | null>(null);
 
-function persist(state: CommunityState) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function load(): LocalState {
+  try {
+    const cur = localStorage.getItem(STORAGE_KEY);
+    if (cur) return parseStorage(cur);
+    for (const k of LEGACY_KEYS) {
+      const old = localStorage.getItem(k);
+      if (old) return parseStorage(old);
+    }
+  } catch {
+    // 사파리 개인정보 모드 등: 메모리로만 동작
+  }
+  return emptyState();
+}
+
+function persist(state: LocalState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // 저장 실패해도 화면은 계속 쓴다
+  }
+}
+
+async function post(body: unknown) {
+  const res = await fetch("/api/records", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return res.ok;
 }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<LocalState>(emptyState);
   const [ready, setReady] = useState(false);
-  const [state, setState] = useState<CommunityState>(emptyState);
-  const [overlay, setOverlay] = useState<CatalogOverlay>(emptyOverlay);
+  const [feed, setFeed] = useState<SessionRecord[]>([]);
+  const [feedReady, setFeedReady] = useState(false);
+
+  const refreshFeed = useCallback(() => {
+    fetch("/api/records")
+      .then((r) => (r.ok ? r.json() : { records: [] }))
+      .then((b: { records?: SessionRecord[] }) => setFeed(b.records ?? []))
+      .catch(() => {})
+      .finally(() => setFeedReady(true));
+  }, []);
 
   useEffect(() => {
+    const s = load();
+    // 외부 저장소(localStorage)에서 한 번 읽어 오는 초기화라 effect 안 setState가 맞다.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState(s);
+    setReady(true);
+    refreshFeed();
+  }, [refreshFeed]);
+
+  useEffect(() => {
+    if (ready) persist(state);
+  }, [ready, state]);
+
+  // 오프라인에서 저장한 공개 기록을 다시 올린다
+  useEffect(() => {
+    if (!ready) return;
+    const pending = state.records.filter((r) => r.public && !r.synced);
+    if (!pending.length) return;
     let alive = true;
     (async () => {
-      const local = parseStorage(localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem("saunagosipda.v1"));
-      let next = local;
-      let nextOverlay = emptyOverlay;
-      try {
-        const res = await fetch("/api/community");
-        if (res.ok) {
-          const body = (await res.json()) as { state?: unknown };
-          const server = parseStorage(JSON.stringify(body.state ?? null));
-          if (isPopulated(server)) next = server;
-          else if (isPopulated(local)) {
-            await fetch("/api/community", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(local) });
-          }
-        }
-        const cat = await fetch("/api/catalog");
-        if (cat.ok) {
-          const body = (await cat.json()) as { overlay?: CatalogOverlay };
-          if (body.overlay?.fetchedAt) nextOverlay = body.overlay;
-        }
-      } catch {
-        // 서버 없으면 로컬만. 폴백이 맞다.
+      const done: string[] = [];
+      for (const r of pending) {
+        if (await post({ action: "upsert", record: r }).catch(() => false)) done.push(r.id);
       }
-      if (!alive) return;
-      setOverlay(nextOverlay);
-      setState(next);
-      persist(next);
-      setReady(true);
+      if (!alive || !done.length) return;
+      setState((prev) => ({
+        ...prev,
+        records: prev.records.map((r) => (done.includes(r.id) ? { ...r, synced: true } : r)),
+      }));
+      refreshFeed();
     })();
     return () => {
       alive = false;
     };
-  }, []);
+  }, [ready, state.records, refreshFeed]);
 
-  useEffect(() => {
-    if (!ready) return;
-    persist(state);
-    fetch("/api/community", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(state) }).catch(() => {});
-  }, [ready, state]);
-
-  const visits = useMemo(
-    () => mergeVisits(seedVisits, state.extraVisits, state.liked),
-    [state.extraVisits, state.liked],
+  const value = useMemo<AppState>(
+    () => ({
+      ready,
+      user: state.user,
+      records: state.records,
+      wants: state.wants,
+      liked: state.liked,
+      feed,
+      feedReady,
+      setName: (name) => {
+        const clean = name.trim().slice(0, 20);
+        const next: UserProfile = { id: state.user?.id ?? systemClock.id("u"), name: clean };
+        setState((s) => ({
+          ...s,
+          user: next,
+          records: s.records.map((r) => ({ ...r, userName: clean, synced: r.public ? false : r.synced })),
+        }));
+        return next;
+      },
+      saveRecord: (draft, opts) => {
+        const user = opts?.user ?? state.user;
+        const id = opts?.id;
+        if (!user) return { ok: false, message: "닉네임을 먼저 정해 주세요." };
+        const made = createRecord(draft, user);
+        if (!made.ok) return made;
+        const prev = id ? state.records.find((r) => r.id === id) : undefined;
+        const record: SessionRecord = prev
+          ? { ...made.value, id: prev.id, createdAt: prev.createdAt, likes: prev.likes }
+          : made.value;
+        if (prev?.public && !record.public) post({ action: "delete", id: prev.id, userId: user.id }).catch(() => {});
+        setState((s) => ({ ...s, records: upsertMine(s.records, record) }));
+        return { ok: true, record };
+      },
+      deleteRecord: (id) => {
+        const user = state.user;
+        const r = state.records.find((x) => x.id === id);
+        setState((s) => ({ ...s, records: s.records.filter((x) => x.id !== id) }));
+        if (user && r?.public) post({ action: "delete", id, userId: user.id }).then(refreshFeed).catch(() => {});
+      },
+      toggleWant: (placeId) =>
+        setState((s) => ({
+          ...s,
+          wants: s.wants.includes(placeId) ? s.wants.filter((x) => x !== placeId) : [...s.wants, placeId],
+        })),
+      like: (id) => {
+        if (state.liked.includes(id)) return;
+        setState((s) => ({ ...s, liked: [...s.liked, id] }));
+        setFeed((f) => f.map((r) => (r.id === id ? { ...r, likes: r.likes + 1 } : r)));
+        post({ action: "like", id }).catch(() => {});
+      },
+      refreshFeed,
+      resetAll: () => {
+        setState(emptyState());
+        try {
+          [STORAGE_KEY, ...LEGACY_KEYS].forEach((k) => localStorage.removeItem(k));
+        } catch {
+          // 무시
+        }
+      },
+    }),
+    [ready, state, feed, feedReady, refreshFeed],
   );
-  const catalog = useMemo(
-    () => applyVisitFacts(applyCatalogOverlay(mergeCatalog(facilities, state.approvedFacilities), overlay), visits),
-    [state.approvedFacilities, visits, overlay],
-  );
-  const pendingCount = state.submissions.filter((s) => s.status === "pending").length;
-
-  const value: AppState = {
-    ready,
-    user: state.user,
-    wants: state.wants,
-    visits,
-    submissions: state.submissions,
-    catalog,
-    overlay,
-    pendingCount,
-    login: (name, email) => setState((prev) => ({ ...prev, user: { id: "me", name, email } })),
-    logout: () => setState((prev) => ({ ...prev, user: null })),
-    toggleWant: (facilityId) => {
-      if (!state.user) return false;
-      setState((prev) => ({
-        ...prev,
-        wants: prev.wants.includes(facilityId)
-          ? prev.wants.filter((id) => id !== facilityId)
-          : [...prev.wants, facilityId],
-      }));
-      return true;
-    },
-    addVisit: (visit) => {
-      if (!state.user) return;
-      const next: Visit = {
-        ...visit,
-        id: systemClock.id("local"),
-        userId: state.user.id,
-        userName: state.user.name,
-        likes: 0,
-        date: systemClock.iso().slice(0, 10),
-        photo: visit.photo ?? "",
-      };
-      setState((prev) => ({ ...prev, extraVisits: [next, ...prev.extraVisits] }));
-    },
-    likeVisit: (id) => {
-      setState((prev) => ({
-        ...prev,
-        liked: prev.liked.includes(id) ? prev.liked : [...prev.liked, id],
-      }));
-    },
-    submitFacility: (draft) => {
-      const result = submitInHarness(state, catalog, draft);
-      if (!result.ok) return { ok: false, message: result.message };
-      setState(result.value);
-      return { ok: true, message: "검수 대기로 접수했습니다." };
-    },
-    approveSubmission: (id) => {
-      const result = approveInHarness(state, id, buildFacility);
-      if (!result.ok) return { ok: false, message: result.message };
-      setState(result.value.state);
-      return { ok: true, message: "카탈로그에 올렸습니다." };
-    },
-    rejectSubmission: (id, reason) => {
-      const result = rejectInHarness(state, id, reason);
-      if (!result.ok) return { ok: false, message: result.message };
-      setState(result.value);
-      return { ok: true, message: "반려했습니다." };
-    },
-  };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
