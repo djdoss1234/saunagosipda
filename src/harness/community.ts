@@ -12,10 +12,12 @@ export type LocalState = {
   wants: string[];
   records: SessionRecord[];
   liked: string[];
+  /** 안정시 심박(bpm). 기기에만 둔다. 나올 맥박 안내용. */
+  restingHr: number | null;
 };
 
 export function emptyState(): LocalState {
-  return { version: STORAGE_VERSION, user: null, wants: [], records: [], liked: [] };
+  return { version: STORAGE_VERSION, user: null, wants: [], records: [], liked: [], restingHr: null };
 }
 
 function isObject(v: unknown): v is Record<string, unknown> {
@@ -61,6 +63,7 @@ export function migrateStorage(raw: unknown): LocalState {
       wants: strings(raw.wants),
       liked: strings(raw.liked),
       records: Array.isArray(raw.records) ? (raw.records as SessionRecord[]) : [],
+      restingHr: typeof raw.restingHr === "number" && raw.restingHr >= 35 && raw.restingHr <= 120 ? raw.restingHr : null,
     };
   }
   // v2: { user, wants, extraVisits, liked, submissions, approvedFacilities }

@@ -1,6 +1,7 @@
 "use client";
 
-import { fmtStay, lockerStay } from "@/harness/records";
+import { useApp } from "@/context/AppState";
+import { exitPulse, fmtStay, lockerStay } from "@/harness/records";
 import { ChevronRight, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -35,6 +36,8 @@ const hhmm = (t: number) => new Date(t).toLocaleTimeString("ko-KR", { hour: "num
  */
 export function LockerTimer() {
   const router = useRouter();
+  const { restingHr } = useApp();
+  const pulse = restingHr ? exitPulse(restingHr) : null;
   const [inAt, setInAt] = useState<number | null | undefined>(undefined);
   const [now, setNow] = useState(0);
   const [confirmQuit, setConfirmQuit] = useState(false);
@@ -91,6 +94,11 @@ export function LockerTimer() {
             <p className="num mt-2 text-[18vw] leading-none font-bold tracking-[-0.04em] sm:text-7xl" aria-live="off">
               {fmtStay(Math.max(1, min))}
             </p>
+            {pulse ? (
+              <p className="num mt-5 rounded-full bg-heat-soft px-4 py-1.5 text-[14px] font-semibold text-heat">
+                사우나는 맥박 {new Date(inAt).getHours() < 11 ? pulse.morning : pulse.night}쯤에서 나오기
+              </p>
+            ) : null}
             <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-ink-soft">
               다 끝나고 사물함에서 폰을 꺼내면 퇴장을 눌러요. 세트 수와 토토노이만 고르면 끝이에요.
             </p>

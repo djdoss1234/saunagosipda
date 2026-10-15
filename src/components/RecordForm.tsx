@@ -6,8 +6,8 @@ import { fmtDate } from "@/components/RecordCard";
 import { SetBar } from "@/components/SetBar";
 import { Stepper } from "@/components/Stepper";
 import { useApp } from "@/context/AppState";
-import { defaultSets, fmtDur, fmtStay, localDate, PACE_LABEL, paceSets, recentPlaces, setsMeasured, TOTONOI_LABELS, type Pace } from "@/harness/records";
-import type { SaunaSet, SessionRecord, Totonoi } from "@/lib/types";
+import { defaultSets, fmtDur, fmtStay, localDate, PACE_LABEL, paceSets, recentPlaces, REST_PLACE_LABEL, REST_POSE_LABEL, setsMeasured, TOTONOI_LABELS, type Pace } from "@/harness/records";
+import type { RestPlace, RestPose, SaunaSet, SessionRecord, Totonoi } from "@/lib/types";
 import { CalendarDays, ChevronDown, Timer, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -88,7 +88,9 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
   const [openSets, setOpenSets] = useState(false);
   // 평소보다 길게/짧게: 루틴 한 세트를 기준으로 늘이고 줄인다. 직접 고치면 null(직접).
   const [base] = useState<SaunaSet>(() => initial.sets[0] ?? { saunaSec: 480, plungeSec: 60, restSec: 420 });
-  const [pace, setPace] = useState<Pace | null>(e ? null : "usual");
+  const [pace, setPace] = useState<Pace | null>(e ? (e.pace ?? null) : "usual");
+  const [restPose, setRestPose] = useState<RestPose | undefined>(e?.restPose);
+  const [restPlace, setRestPlace] = useState<RestPlace | undefined>(e?.restPlace);
   const [perSet, setPerSet] = useState(!uniform(initial.sets));
   const [totonoi, setTotonoi] = useState<Totonoi | null>(e?.totonoi ?? null);
   const [isPublic, setPublic] = useState(e?.public ?? true);
@@ -137,6 +139,9 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
         source: initial.source,
         stayMin: stay?.stayMin,
         startedAt: stay?.startedAt,
+        pace: measured ? undefined : (pace ?? undefined),
+        restPose,
+        restPlace,
         saunaTempC: num(saunaTemp),
         plungeTempC: num(plungeTemp),
         memo,
@@ -301,6 +306,25 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
             </div>
           </div>
         ) : null}
+      </section>
+
+      <section className="grid gap-2.5" aria-labelledby="l-rest">
+        <h2 id="l-rest" className="text-[15px] font-semibold">
+          외기욕 <span className="text-[13px] font-normal text-muted">선택 · 무엇이 토토노이를 올렸는지 찾는 데 써요</span>
+        </h2>
+        <div className="flex flex-wrap gap-1.5">
+          {(Object.keys(REST_POSE_LABEL) as RestPose[]).map((k) => (
+            <button key={k} type="button" className="chip" aria-pressed={restPose === k} onClick={() => setRestPose((v) => (v === k ? undefined : k))}>
+              {REST_POSE_LABEL[k]}
+            </button>
+          ))}
+          <span className="mx-1 w-px self-stretch bg-line" aria-hidden />
+          {(Object.keys(REST_PLACE_LABEL) as RestPlace[]).map((k) => (
+            <button key={k} type="button" className="chip" aria-pressed={restPlace === k} onClick={() => setRestPlace((v) => (v === k ? undefined : k))}>
+              {REST_PLACE_LABEL[k]}
+            </button>
+          ))}
+        </div>
       </section>
 
       <details className="group" open={!!(e?.memo || e?.saunaTempC || e?.plungeTempC || e?.food)}>

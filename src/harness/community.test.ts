@@ -7,7 +7,12 @@ import {
   defaultSets,
   goldenRemaining,
   GUIDE,
+  dayPart,
+  exitPulse,
   fmtStay,
+  insights,
+  monthSummary,
+  recordMonths,
   localDate,
   lockerStay,
   paceSets,
@@ -276,5 +281,48 @@ describe("기억으로 기록 / 사물함 타이머", () => {
     expect(validateDraft({ ...d, stayMin: 0 }, TODAY).ok).toBe(false);
     expect(validateDraft({ ...d, source: "hack" as never }, TODAY).ok).toBe(false);
     expect(validateDraft({ ...d, startedAt: "nope" }, TODAY).ok).toBe(false);
+  });
+});
+
+describe("무엇이 토토노이를 올렸나 / 월간 요약 / 나올 맥박", () => {
+  const mk = (i: number, over: Partial<SessionRecord>): SessionRecord => ({
+    id: `r${i}`, userId: "u", userName: "u", placeName: "A탕", date: "2026-10-01", createdAt: "x",
+    sets: [{ saunaSec: 480, plungeSec: 60, restSec: 420 }], totonoi: 3, public: false, source: "manual", likes: 0, ...over,
+  });
+
+  it("양쪽 다 3회 이상일 때만, 아는 기록끼리 비교한다", () => {
+    const recs = [
+      ...[0, 1, 2].map((i) => mk(i, { restPose: "lying", totonoi: 5 })),
+      ...[3, 4, 5].map((i) => mk(i, { restPose: "sitting", totonoi: 3 })),
+      mk(6, { totonoi: 1 }), // 자세 모름 → 비교에서 빠진다
+    ];
+    const lying = insights(recs).find((x) => x.key === "lying")!;
+    expect(lying).toMatchObject({ withAvg: 5, withoutAvg: 3, diff: 2, n: 3, nOther: 3 });
+    expect(insights(recs.slice(0, 5)).find((x) => x.key === "lying")).toBeUndefined(); // 앉아서 2회뿐
+  });
+
+  it("입장 시각이 없으면 시간대를 지어내지 않는다", () => {
+    expect(dayPart(undefined)).toBeNull();
+    expect(dayPart(new Date(2026, 9, 14, 7, 0).toISOString())).toBe("morning");
+    expect(dayPart(new Date(2026, 9, 14, 23, 0).toISOString())).toBe("night");
+  });
+
+  it("월간 요약은 그 달 기록만, 머문 시간은 잰 것만 더한다", () => {
+    const recs = [mk(1, { date: "2026-10-02", stayMin: 90 }), mk(2, { date: "2026-10-09", placeName: "B탕", totonoi: 5 }), mk(3, { date: "2026-09-30" })];
+    const m = monthSummary(recs, "2026-10");
+    expect(m).toMatchObject({ count: 2, places: 2, sets: 2, avgTotonoi: 4, stayMin: 90, stayCount: 1 });
+    expect(recordMonths(recs, "2026-10-15")).toEqual(["2026-10", "2026-09"]);
+    expect(monthSummary(recs, "2026-08").avgTotonoi).toBeNull();
+  });
+
+  it("나올 맥박 = 평소의 2배, 아침 110·밤 130을 넘기지 않는다", () => {
+    expect(exitPulse(60)).toEqual({ double: 120, morning: 110, night: 120 });
+    expect(exitPulse(50)).toEqual({ double: 100, morning: 100, night: 100 });
+    expect(exitPulse(70).night).toBe(130);
+  });
+
+  it("안정시 심박은 저장을 넘어와도 남는다", () => {
+    expect(migrateStorage({ version: STORAGE_VERSION, restingHr: 62 }).restingHr).toBe(62);
+    expect(migrateStorage({ version: STORAGE_VERSION, restingHr: 300 }).restingHr).toBeNull();
   });
 });

@@ -2,8 +2,8 @@
 
 import { RecordRow } from "@/components/RecordCard";
 import { useApp } from "@/context/AppState";
-import { byNewest, fmtDur, GUIDE, routine, stats, toCSV } from "@/harness/records";
-import { Check, Download, PencilLine } from "lucide-react";
+import { byNewest, exitPulse, fmtDur, fmtStay, GUIDE, INSIGHT_MIN_N, insights, monthSummary, recordMonths, routine, stats, toCSV, validRestingHr } from "@/harness/records";
+import { Check, ChevronLeft, ChevronRight, Download, HeartPulse, PencilLine, TrendingDown, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -12,7 +12,9 @@ const monthLabel = (ym: string) => `${+ym.slice(0, 4)}년 ${+ym.slice(5, 7)}월`
 
 /** 마이 = 쌓인 기록. 숫자 셋 → 루틴 vs 책 → 월별 전체 목록 → 데이터. */
 export function Me() {
-  const { ready, user, records, setName, resetAll } = useApp();
+  const { ready, user, records, setName, resetAll, restingHr, setRestingHr } = useApp();
+  const [monthIdx, setMonthIdx] = useState(0);
+  const [hrDraft, setHrDraft] = useState<string | null>(null);
   const saved = useSearchParams().get("saved");
   const [name, setNameDraft] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -20,7 +22,8 @@ export function Me() {
 
   const s = stats(records);
   const r = routine(records);
-  const maxMonth = Math.max(1, ...s.months.map((m) => m.count));
+  const ins = insights(records);
+  const pulse = restingHr ? exitPulse(restingHr) : null;
   const byMonth = new Map<string, typeof records>();
   for (const rec of [...records].sort(byNewest)) byMonth.set(rec.date.slice(0, 7), [...(byMonth.get(rec.date.slice(0, 7)) ?? []), rec]);
 
@@ -82,35 +85,41 @@ export function Me() {
         )}
       </section>
 
-      <section className="grid grid-cols-3 gap-2 text-center" aria-label="누적">
-        {[
-          { v: s.total, l: "방문" },
-          { v: s.streakWeeks, l: "연속 주" },
-          { v: s.avgTotonoi ?? "–", l: "평균 토토노이" },
-        ].map((x) => (
-          <div key={x.l} className="rounded-xl bg-fill py-3.5">
-            <p className="num text-[22px] font-bold">{x.v}</p>
-            <p className="mt-0.5 text-[12px] text-muted">{x.l}</p>
-          </div>
-        ))}
-      </section>
+      <MonthCard records={records} months={recordMonths(records)} idx={monthIdx} setIdx={setMonthIdx} streak={s.streakWeeks} />
 
-      {records.length ? (
-        <section aria-labelledby="mm" className="grid gap-3">
-          <h2 id="mm" className="section-title">
-            월별 방문
-          </h2>
-          <div className="flex h-24 items-end gap-2">
-            {s.months.map((m) => (
-              <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
-                <span className="num text-[12px] text-muted">{m.count || ""}</span>
-                <span className={`w-5 rounded-full ${m.count ? "bg-ink" : "bg-fill"}`} style={{ height: m.count ? `${(m.count / maxMonth) * 56}px` : 4 }} />
-                <span className="text-[12px] text-muted">{+m.month.slice(5)}월</span>
-              </div>
+      <section aria-labelledby="ins" className="grid gap-1">
+        <h2 id="ins" className="section-title">
+          무엇이 토토노이를 올렸나
+        </h2>
+        <p className="text-[13px] text-muted">조건이 있을 때와 없을 때의 평균 차이. 양쪽 다 {INSIGHT_MIN_N}회 이상 쌓인 것만 보여요.</p>
+        {ins.length ? (
+          <ul className="mt-2">
+            {ins.slice(0, 6).map((x) => (
+              <li key={x.key} className="flex items-center gap-3 border-b border-line py-3 last:border-0">
+                {x.diff > 0 ? (
+                  <TrendingUp className="size-[18px] shrink-0 text-rest" aria-hidden />
+                ) : (
+                  <TrendingDown className="size-[18px] shrink-0 text-muted" aria-hidden />
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[15px] font-semibold">{x.label}</span>
+                  <span className="num text-[12px] text-muted">
+                    있을 때 {x.withAvg} ({x.n}회) · 없을 때 {x.withoutAvg} ({x.nOther}회)
+                  </span>
+                </span>
+                <span className={`num text-[17px] font-bold ${x.diff > 0 ? "text-rest" : "text-muted"}`}>
+                  {x.diff > 0 ? "+" : ""}
+                  {x.diff.toFixed(1)}
+                </span>
+              </li>
             ))}
-          </div>
-        </section>
-      ) : null}
+          </ul>
+        ) : (
+          <p className="mt-2 rounded-xl bg-fill px-4 py-4 text-[14px] leading-relaxed text-ink-soft">
+            아직 비교할 만큼 쌓이지 않았어요. 외기욕 자세·장소, 온도, 입장 시각을 같이 남기면 더 빨리 보여요.
+          </p>
+        )}
+      </section>
 
       {r ? (
         <section aria-labelledby="rt" className="grid gap-1">
@@ -142,6 +151,55 @@ export function Me() {
           <p className="text-[12px] text-muted">책의 안내값이고 의학 조언이 아니에요. 어지러우면 바로 나오세요.</p>
         </section>
       ) : null}
+
+      <section aria-labelledby="hr" className="grid gap-2">
+        <h2 id="hr" className="section-title">
+          나올 맥박
+        </h2>
+        {hrDraft === null ? (
+          <button type="button" onClick={() => setHrDraft(restingHr ? String(restingHr) : "")} className="flex items-center gap-3 rounded-xl bg-fill px-4 py-3.5 text-left">
+            <HeartPulse className="size-5 shrink-0 text-heat" strokeWidth={1.9} aria-hidden />
+            {pulse ? (
+              <span className="min-w-0 flex-1">
+                <span className="num block text-[15px]">
+                  평소 <b className="font-semibold">{restingHr}</b> → 아침 <b className="font-semibold">{pulse.morning}</b> · 밤 <b className="font-semibold">{pulse.night}</b> bpm쯤에서 나오기
+                </span>
+                <span className="text-[12px] text-muted">평소 맥박의 2배, 단 아침 110·밤 130을 넘기지 않게</span>
+              </span>
+            ) : (
+              <span className="min-w-0 flex-1 text-[15px]">
+                평소 맥박을 넣으면 사우나에서 나올 맥박을 알려 드려요
+                <span className="block text-[12px] text-muted">아침에 일어나 1분 재면 돼요</span>
+              </span>
+            )}
+            <ChevronRight className="size-4 shrink-0 text-muted" aria-hidden />
+          </button>
+        ) : (
+          <form
+            className="flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const n = Number(hrDraft);
+              if (!hrDraft.trim()) setRestingHr(null);
+              else if (validRestingHr(n)) setRestingHr(Math.round(n));
+              else return;
+              setHrDraft(null);
+            }}
+          >
+            <label htmlFor="rhr" className="sr-only">
+              평소 맥박(bpm)
+            </label>
+            <span className="relative flex-1">
+              <input id="rhr" className="field num pr-14" inputMode="numeric" placeholder="60" value={hrDraft} onChange={(e) => setHrDraft(e.target.value.replace(/\D/g, "").slice(0, 3))} autoFocus />
+              <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-[14px] text-muted">bpm</span>
+            </span>
+            <button type="submit" className="btn-ink shrink-0 px-5" disabled={!!hrDraft.trim() && !validRestingHr(Number(hrDraft))}>
+              저장
+            </button>
+          </form>
+        )}
+        <p className="text-[12px] text-muted">이 기기에만 저장돼요. 책의 안내값이고 의학 조언이 아니에요. 어지러우면 맥박과 상관없이 바로 나오세요.</p>
+      </section>
 
       {[...byMonth.entries()].map(([month, list]) => (
         <section key={month} aria-labelledby={`m-${month}`}>
@@ -201,5 +259,71 @@ export function Me() {
         </div>
       </section>
     </div>
+  );
+}
+
+function MonthCard({
+  records,
+  months,
+  idx,
+  setIdx,
+  streak,
+}: {
+  records: Parameters<typeof monthSummary>[0];
+  months: string[];
+  idx: number;
+  setIdx: (n: number) => void;
+  streak: number;
+}) {
+  const ym = months[Math.min(idx, months.length - 1)];
+  const m = monthSummary(records, ym);
+  const label = `${+ym.slice(0, 4)}년 ${+ym.slice(5, 7)}월`;
+  return (
+    <section aria-label="월간 요약" className="grid gap-3 rounded-2xl bg-fill p-4">
+      <div className="flex items-center">
+        <button type="button" aria-label="이전 달" disabled={idx >= months.length - 1} onClick={() => setIdx(idx + 1)} className="flex size-9 items-center justify-center rounded-full disabled:opacity-25">
+          <ChevronLeft className="size-5" aria-hidden />
+        </button>
+        <h2 className="flex-1 text-center text-[16px] font-bold">{label}</h2>
+        <button type="button" aria-label="다음 달" disabled={idx === 0} onClick={() => setIdx(idx - 1)} className="flex size-9 items-center justify-center rounded-full disabled:opacity-25">
+          <ChevronRight className="size-5" aria-hidden />
+        </button>
+      </div>
+      <dl className="grid grid-cols-3 gap-2 text-center">
+        {[
+          { k: "방문", v: m.count },
+          { k: "시설", v: m.places },
+          { k: "평균 토토노이", v: m.avgTotonoi ?? "–" },
+          { k: "세트", v: m.sets },
+          { k: "머문 시간", v: m.stayCount ? fmtStay(m.stayMin) : "–" },
+          { k: idx === 0 ? "연속 주" : "", v: idx === 0 ? streak : "" },
+        ]
+          .filter((x) => x.k)
+          .map((x, i) => (
+          <div key={i} className="rounded-xl bg-surface px-1 py-3">
+            <dd className="num text-[18px] font-bold">{x.v}</dd>
+            <dt className="mt-0.5 text-[12px] text-muted">{x.k}</dt>
+          </div>
+        ))}
+      </dl>
+      {m.stayCount && m.stayCount < m.count ? <p className="text-[12px] text-muted">머문 시간은 사물함 타이머로 잰 {m.stayCount}번의 합이에요.</p> : null}
+      {m.topPlaces.length ? (
+        <ol className="grid gap-1">
+          {m.topPlaces.map((p, i) => (
+            <li key={p.placeId ?? p.placeName} className="flex items-center gap-3 text-[14px]">
+              <span className="num w-4 text-muted">{i + 1}</span>
+              {p.placeId ? (
+                <Link href={`/saunas/${p.placeId}`} className="min-w-0 flex-1 truncate">
+                  {p.placeName}
+                </Link>
+              ) : (
+                <span className="min-w-0 flex-1 truncate">{p.placeName}</span>
+              )}
+              <span className="num text-muted">{p.count}회</span>
+            </li>
+          ))}
+        </ol>
+      ) : null}
+    </section>
   );
 }

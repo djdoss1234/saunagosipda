@@ -12,6 +12,8 @@ type AppState = {
   records: SessionRecord[];
   wants: string[];
   liked: string[];
+  restingHr: number | null;
+  setRestingHr: (hr: number | null) => void;
   feed: SessionRecord[];
   feedReady: boolean;
   setName: (name: string) => UserProfile;
@@ -113,6 +115,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       records: state.records,
       wants: state.wants,
       liked: state.liked,
+      restingHr: state.restingHr,
+      setRestingHr: (hr) => setState((s) => ({ ...s, restingHr: hr })),
       feed,
       feedReady,
       setName: (name) => {

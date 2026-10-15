@@ -1,4 +1,6 @@
-import type { RecordSource, SaunaSet, SessionRecord, Totonoi, UserProfile } from "@/lib/types";
+import type { Pace, RecordSource, RestPlace, RestPose, SaunaSet, SessionRecord, Totonoi, UserProfile } from "@/lib/types";
+
+export type { Pace };
 
 /** 『의사가 가르쳐 주는 사우나 교과서』(가토 야스타카) 기준 안내값. 의학 조언이 아니다. */
 export const GUIDE = {
@@ -29,7 +31,7 @@ export const systemClock: Clock = {
 
 export type RecordDraft = Pick<
   SessionRecord,
-  "placeId" | "placeName" | "date" | "sets" | "totonoi" | "saunaTempC" | "plungeTempC" | "memo" | "food" | "public" | "source" | "stayMin" | "startedAt"
+  "placeId" | "placeName" | "date" | "sets" | "totonoi" | "saunaTempC" | "plungeTempC" | "memo" | "food" | "public" | "source" | "stayMin" | "startedAt" | "pace" | "restPose" | "restPlace"
 >;
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -48,7 +50,6 @@ export function setsMeasured(source: RecordSource) {
   return source === "timer" || source === "watch";
 }
 
-export type Pace = "short" | "usual" | "long";
 export const PACE_LABEL: Record<Pace, string> = { short: "평소보다 짧게", usual: "평소대로", long: "평소보다 길게" };
 const PACE_FACTOR: Record<Pace, number> = { short: 0.75, usual: 1, long: 1.25 };
 
@@ -98,6 +99,9 @@ export function validateDraft(draft: RecordDraft, today: string): Result<RecordD
   if (!SOURCES.includes(draft.source)) return { ok: false, message: "기록 방식이 맞지 않아요." };
   if (!inRange(draft.stayMin, 1, 12 * 60)) return { ok: false, message: "머문 시간은 1분~12시간이에요." };
   if (draft.startedAt !== undefined && Number.isNaN(Date.parse(draft.startedAt))) return { ok: false, message: "입장 시각이 맞지 않아요." };
+  if (draft.pace !== undefined && !["short", "usual", "long"].includes(draft.pace)) return { ok: false, message: "세트 시간 값이 맞지 않아요." };
+  if (draft.restPose !== undefined && !["lying", "sitting"].includes(draft.restPose)) return { ok: false, message: "외기욕 자세 값이 맞지 않아요." };
+  if (draft.restPlace !== undefined && !["outdoor", "indoor"].includes(draft.restPlace)) return { ok: false, message: "외기욕 장소 값이 맞지 않아요." };
   return {
     ok: true,
     value: {
@@ -313,14 +317,14 @@ export function addLike(list: SessionRecord[], id: string) {
 // ---------- 내보내기 ----------
 
 export function toCSV(records: SessionRecord[]) {
-  const head = ["date", "place", "set", "sauna_sec", "plunge_sec", "rest_sec", "sets_measured", "sauna_temp_c", "plunge_temp_c", "totonoi", "source", "stay_min", "started_at"];
+  const head = ["date", "place", "set", "sauna_sec", "plunge_sec", "rest_sec", "sets_measured", "sauna_temp_c", "plunge_temp_c", "totonoi", "source", "stay_min", "started_at", "pace", "rest_pose", "rest_place"];
   const esc = (v: unknown) => {
     const s = v === undefined || v === null ? "" : String(v);
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const rows = [...records].sort(byNewest).flatMap((r) =>
     (r.sets.length ? r.sets : [null]).map((s, i) =>
-      [r.date, r.placeName, s ? i + 1 : "", s?.saunaSec, s?.plungeSec, s?.restSec, s ? (setsMeasured(r.source) ? 1 : 0) : "", r.saunaTempC, r.plungeTempC, r.totonoi, r.source, r.stayMin, r.startedAt]
+      [r.date, r.placeName, s ? i + 1 : "", s?.saunaSec, s?.plungeSec, s?.restSec, s ? (setsMeasured(r.source) ? 1 : 0) : "", r.saunaTempC, r.plungeTempC, r.totonoi, r.source, r.stayMin, r.startedAt, r.pace, r.restPose, r.restPlace]
         .map(esc)
         .join(","),
     ),
@@ -348,4 +352,108 @@ export function lockerStay(inAt: number, outAt: number): { stayMin: number; star
   const min = Math.round((outAt - inAt) / 60000);
   if (!Number.isFinite(min) || min < 1 || min > 12 * 60) return null;
   return { stayMin: min, startedAt: new Date(inAt).toISOString() };
+}
+
+export const REST_POSE_LABEL: Record<RestPose, string> = { lying: "누워서", sitting: "앉아서" };
+export const REST_PLACE_LABEL: Record<RestPlace, string> = { outdoor: "실외", indoor: "실내" };
+
+// ---------- 무엇이 토토노이를 올렸나 ----------
+
+/** 입장 시각(현지)으로 나눈 시간대. 입장 시각이 없으면 모른다(지어내지 않는다). */
+export type DayPart = "morning" | "day" | "evening" | "night";
+export const DAY_PART_LABEL: Record<DayPart, string> = { morning: "아침(5~11시)", day: "낮(11~17시)", evening: "저녁(17~21시)", night: "밤(21~5시)" };
+export function dayPart(startedAt: string | undefined): DayPart | null {
+  if (!startedAt) return null;
+  const t = new Date(startedAt);
+  if (Number.isNaN(t.getTime())) return null;
+  const h = t.getHours();
+  return h >= 5 && h < 11 ? "morning" : h >= 11 && h < 17 ? "day" : h >= 17 && h < 21 ? "evening" : "night";
+}
+
+export type Insight = { key: string; label: string; withAvg: number; withoutAvg: number; diff: number; n: number; nOther: number };
+
+const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+const r1 = (n: number) => Math.round(n * 10) / 10;
+
+/**
+ * 조건이 있을 때와 없을 때 토토노이 평균 차이. 그 조건을 알 수 있는 기록끼리만 비교하고,
+ * 양쪽 다 MIN_N회 이상일 때만 보여 준다(우연한 한두 번으로 결론 내지 않게).
+ */
+export const INSIGHT_MIN_N = 3;
+export function insights(records: SessionRecord[], minN = INSIGHT_MIN_N): Insight[] {
+  type Cond = { key: string; label: string; known: (r: SessionRecord) => boolean; has: (r: SessionRecord) => boolean };
+  const conds: Cond[] = [
+    { key: "sets3", label: "3세트 이상", known: (r) => r.sets.length > 0, has: (r) => r.sets.length >= 3 },
+    { key: "hot90", label: "사우나 90°C 이상", known: (r) => r.saunaTempC !== undefined, has: (r) => (r.saunaTempC ?? 0) >= 90 },
+    { key: "cold17", label: "냉탕 17°C 이하", known: (r) => r.plungeTempC !== undefined, has: (r) => (r.plungeTempC ?? 99) <= 17 },
+    { key: "long", label: "평소보다 길게", known: (r) => !!r.pace, has: (r) => r.pace === "long" },
+    { key: "short", label: "평소보다 짧게", known: (r) => !!r.pace, has: (r) => r.pace === "short" },
+    { key: "lying", label: "외기욕 누워서", known: (r) => !!r.restPose, has: (r) => r.restPose === "lying" },
+    { key: "outdoor", label: "외기욕 실외", known: (r) => !!r.restPlace, has: (r) => r.restPlace === "outdoor" },
+    ...(Object.keys(DAY_PART_LABEL) as DayPart[]).map((p) => ({
+      key: `part-${p}`,
+      label: DAY_PART_LABEL[p],
+      known: (r: SessionRecord) => dayPart(r.startedAt) !== null,
+      has: (r: SessionRecord) => dayPart(r.startedAt) === p,
+    })),
+  ];
+  const places = new Map<string, string>();
+  for (const r of records) places.set(r.placeId ?? r.placeName, r.placeName);
+  for (const [key, name] of places) conds.push({ key: `place-${key}`, label: name, known: () => true, has: (r) => (r.placeId ?? r.placeName) === key });
+
+  const out: Insight[] = [];
+  for (const c of conds) {
+    const known = records.filter(c.known);
+    const yes = known.filter(c.has).map((r) => r.totonoi);
+    const no = known.filter((r) => !c.has(r)).map((r) => r.totonoi);
+    if (yes.length < minN || no.length < minN) continue;
+    const w = avg(yes);
+    const wo = avg(no);
+    out.push({ key: c.key, label: c.label, withAvg: r1(w), withoutAvg: r1(wo), diff: r1(w - wo), n: yes.length, nOther: no.length });
+  }
+  return out.filter((i) => i.diff !== 0).sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+}
+
+// ---------- 월간 요약 ----------
+
+export function monthSummary(records: SessionRecord[], ym: string) {
+  const list = records.filter((r) => r.date.startsWith(ym));
+  const byPlace = new Map<string, { placeId?: string; placeName: string; count: number }>();
+  for (const r of list) {
+    const k = r.placeId ?? r.placeName;
+    const cur = byPlace.get(k) ?? { placeId: r.placeId, placeName: r.placeName, count: 0 };
+    cur.count += 1;
+    byPlace.set(k, cur);
+  }
+  const stays = list.map((r) => r.stayMin).filter((n): n is number => n !== undefined);
+  return {
+    month: ym,
+    count: list.length,
+    places: byPlace.size,
+    sets: list.reduce((a, r) => a + r.sets.length, 0),
+    avgTotonoi: list.length ? r1(avg(list.map((r) => r.totonoi))) : null,
+    /** 사물함 타이머로 잰 기록만 더한다. 몇 번을 잰 합인지 같이 보여 준다. */
+    stayMin: stays.reduce((a, b) => a + b, 0),
+    stayCount: stays.length,
+    topPlaces: [...byPlace.values()].sort((a, b) => b.count - a.count).slice(0, 3),
+  };
+}
+
+/** 기록이 있는 달 + 이번 달, 최신순 */
+export function recordMonths(records: SessionRecord[], today = localDate()) {
+  return [...new Set([today.slice(0, 7), ...records.map((r) => r.date.slice(0, 7))])].sort().reverse();
+}
+
+// ---------- 안정시 심박 → 나올 맥박 ----------
+
+/**
+ * 『사우나 교과서』(p.113~114, 208~210): 평소 맥박의 2배쯤에서 나온다. 단 가벼운 조깅 수준을 넘기지 않게
+ * 아침은 약 110, 밤은 120~130이 상한. 그래서 2배 값과 상한 중 낮은 쪽을 보여 준다.
+ */
+export function exitPulse(restingHr: number) {
+  const double = Math.round(restingHr * 2);
+  return { double, morning: Math.min(double, 110), night: Math.min(double, 130) };
+}
+export function validRestingHr(n: number) {
+  return Number.isFinite(n) && n >= 35 && n <= 120;
 }

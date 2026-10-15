@@ -34,6 +34,11 @@ export type SaunaSet = {
 
 export type Totonoi = 1 | 2 | 3 | 4 | 5;
 
+/** 세트 시간을 기억으로 남길 때: 평소보다 짧게/평소대로/길게 */
+export type Pace = "short" | "usual" | "long";
+export type RestPose = "lying" | "sitting";
+export type RestPlace = "outdoor" | "indoor";
+
 export type RecordSource = "manual" | "locker" | "timer" | "watch" | "legacy";
 
 export type SessionRecord = {
@@ -62,6 +67,11 @@ export type SessionRecord = {
   stayMin?: number;
   /** 입장 시각 ISO. 아침/밤 구분용. */
   startedAt?: string;
+  /** 기억으로 남긴 세트 시간의 결. 직접 고쳤으면 없음. */
+  pace?: Pace;
+  /** 외기욕 회고(선택). 워치 학습 라벨로도 쓴다. */
+  restPose?: RestPose;
+  restPlace?: RestPlace;
   likes: number;
   /** 로컬 전용: 공개 기록이 서버에 올라갔는지 */
   synced?: boolean;
