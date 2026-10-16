@@ -2,6 +2,7 @@
 
 import { areaOf } from "@/components/PlacePicker";
 import { RecordCard, TotonoiTag } from "@/components/RecordCard";
+import { SaunaMap } from "@/components/SaunaMap";
 import { SetBar } from "@/components/SetBar";
 import { useApp } from "@/context/AppState";
 import { byNewest, placeStats } from "@/harness/records";
@@ -85,6 +86,18 @@ export function PlaceView({ place }: { place: Place }) {
           ) : null}
         </div>
       </header>
+
+      {place.lat !== undefined && place.lng !== undefined ? (
+        <div className="overflow-hidden rounded-2xl">
+          <SaunaMap
+            view={{ center: { lat: place.lat, lng: place.lng }, zoom: 16 }}
+            markers={[{ id: place.id, lat: place.lat, lng: place.lng, label: place.name }]}
+            selectedId={place.id}
+            interactive={false}
+            className="h-40"
+          />
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-2">
         <button type="button" onClick={() => toggleWant(place.id)} aria-pressed={want} className={want ? "btn-ink" : "btn-fill"}>

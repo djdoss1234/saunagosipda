@@ -31,6 +31,7 @@ import {
   type RecordDraft,
 } from "@/harness/records";
 import { diffCatalog, emptyOverlay, fingerprint, parseNationwide, regionOf } from "@/lib/localdata";
+import { distanceKm, fmtDistance, inBounds, nearest, project, unproject } from "@/lib/geo";
 import { searchPlaces } from "@/lib/search";
 import type { Place, SessionRecord } from "@/lib/types";
 import { describe, expect, it } from "vitest";
@@ -210,7 +211,7 @@ describe("인허가 목록", () => {
     expect(licensedPlaces.length).toBeGreaterThan(4000);
     expect(new Set(licensedPlaces.map((p) => p.id)).size).toBe(licensedPlaces.length);
     // 원천에 없는 값은 지어내지 않는다: Place에는 온도·요금·영업시간 칸 자체가 없다.
-    expect(Object.keys(licensedToPlace(licensedPlaces[0])).sort()).toEqual(["address", "district", "id", "name", "phone", "regionId", "type"]);
+    expect(Object.keys(licensedToPlace(licensedPlaces[0])).sort()).toEqual(["address", "district", "id", "lat", "lng", "name", "phone", "regionId", "type"]);
   });
 
   it("폐업 행은 닫고 새 영업은 올린다", () => {
@@ -324,5 +325,32 @@ describe("무엇이 토토노이를 올렸나 / 월간 요약 / 나올 맥박", 
   it("안정시 심박은 저장을 넘어와도 남는다", () => {
     expect(migrateStorage({ version: STORAGE_VERSION, restingHr: 62 }).restingHr).toBe(62);
     expect(migrateStorage({ version: STORAGE_VERSION, restingHr: 300 }).restingHr).toBeNull();
+  });
+});
+
+describe("지도·가까운 사우나", () => {
+  const city = { lat: 37.5663, lng: 126.9779 }; // 서울시청
+  const P = (id: string, lat?: number, lng?: number) => ({ id, name: id, type: "사우나" as const, regionId: "seoul", district: "중구", address: "", ...(lat ? { lat, lng } : {}) });
+  const list = [P("far", 35.1, 129.0), P("near", 37.567, 126.979), P("mid", 37.58, 127.0), P("nocoord")];
+
+  it("거리는 실제와 맞고, 좌표 없는 곳은 지도·가까운 목록에서 빠진다", () => {
+    expect(distanceKm(city, { lat: 35.1796, lng: 129.0756 })).toBeGreaterThan(320);
+    expect(distanceKm(city, { lat: 35.1796, lng: 129.0756 })).toBeLessThan(330);
+    expect(nearest(list, city).map((p) => p.id)).toEqual(["near", "mid"]); // 50km 밖·좌표 없음 제외
+    expect(inBounds(list, { south: 37.5, west: 126.9, north: 37.6, east: 127.1 }).map((p) => p.id)).toEqual(["near", "mid"]);
+    expect(fmtDistance(0.234)).toBe("230m");
+    expect(fmtDistance(3.456)).toBe("3.5km");
+  });
+
+  it("타일 좌표 변환은 왕복해도 같은 자리다", () => {
+    const back = unproject(project(city, 14), 14);
+    expect(back.lat).toBeCloseTo(city.lat, 6);
+    expect(back.lng).toBeCloseTo(city.lng, 6);
+  });
+
+  it("인허가 좌표가 있는 곳은 지도에 올라간다", () => {
+    expect(licensedPlaces.filter((p) => p.lat != null).length).toBeGreaterThan(5000);
+    const withCoord = licensedPlaces.find((p) => p.lat != null)!;
+    expect(licensedToPlace(withCoord).lat).toBe(withCoord.lat);
   });
 });

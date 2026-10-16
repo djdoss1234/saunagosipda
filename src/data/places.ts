@@ -16,6 +16,7 @@ export function licensedToPlace(row: LicensedPlace): Place {
     district: row.district,
     address: row.address,
     phone: row.phone || undefined,
+    ...(row.lat != null && row.lng != null ? { lat: row.lat, lng: row.lng } : {}),
   };
 }
 

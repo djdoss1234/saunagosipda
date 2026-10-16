@@ -12,6 +12,9 @@ export type Place = {
   address: string;
   /** 인허가 원천에 있을 때만. 시드 데모 번호는 넣지 않는다. */
   phone?: string;
+  /** WGS84. 인허가 좌표(EPSG:5174)를 변환한 값. 없는 곳도 있다(지도에서 빠짐). */
+  lat?: number;
+  lng?: number;
 };
 
 export type Region = {

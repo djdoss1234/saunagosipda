@@ -206,6 +206,17 @@ textarea.field {
 }
 }
 
+/* 지도 타일: 채도를 낮춰 화면 톤에 맞추고, 다크 모드에선 뒤집는다. */
+.map-tile {
+  filter: saturate(0.5) contrast(0.95) brightness(1.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  .map-tile {
+    filter: invert(1) hue-rotate(180deg) saturate(0.4) brightness(0.85);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
