@@ -6,6 +6,7 @@ import { fmtDate } from "@/components/RecordCard";
 import { SetBar } from "@/components/SetBar";
 import { Stepper } from "@/components/Stepper";
 import { useApp } from "@/context/AppState";
+import { totoColor } from "@/lib/toto";
 import { defaultSets, fmtDur, fmtStay, localDate, PACE_LABEL, paceSets, recentPlaces, REST_PLACE_LABEL, REST_POSE_LABEL, setsMeasured, TOTONOI_LABELS, type Pace } from "@/harness/records";
 import type { RestPlace, RestPose, SaunaSet, SessionRecord, Totonoi } from "@/lib/types";
 import { CalendarDays, ChevronDown, Timer, Trash2 } from "lucide-react";
@@ -161,25 +162,25 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-7" noValidate>
-      <div className="grid gap-3 pt-2">
+    <form onSubmit={submit} className="grid gap-3" noValidate>
+      <div className="grid gap-4 px-1 pt-3 pb-2">
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-[24px] leading-tight font-bold">{e ? "기록 수정" : "오늘 어디 다녀왔어요?"}</h1>
+          <h1 className="title-xl">{e ? "기록 수정" : "오늘 어디 다녀왔어요?"}</h1>
           {!e ? (
-            <Link href="/live" className="chip shrink-0 gap-1.5 pl-3" aria-label="타이머로 재면서 기록">
+            <Link href="/live" className="chip chip-raised press mt-0.5 shrink-0 gap-1.5 pl-3" aria-label="타이머로 재면서 기록">
               <Timer className="size-4" strokeWidth={2} aria-hidden />
               타이머
             </Link>
           ) : null}
         </div>
         <div className="flex items-center gap-1.5">
-          <button type="button" className="chip" aria-pressed={date === today} onClick={() => setDate(today)}>
+          <button type="button" className="chip chip-raised" aria-pressed={date === today} onClick={() => setDate(today)}>
             오늘
           </button>
-          <button type="button" className="chip" aria-pressed={date === yesterday} onClick={() => setDate(yesterday)}>
+          <button type="button" className="chip chip-raised" aria-pressed={date === yesterday} onClick={() => setDate(yesterday)}>
             어제
           </button>
-          <label className="chip relative" style={date !== today && date !== yesterday ? { background: "var(--ink)", color: "var(--on-ink)" } : undefined}>
+          <label className="chip chip-raised relative" style={date !== today && date !== yesterday ? { background: "var(--ink)", color: "var(--on-ink)" } : undefined}>
             <CalendarDays className="size-4" strokeWidth={1.9} aria-hidden />
             {date !== today && date !== yesterday ? fmtDate(date) : "다른 날"}
             <input
@@ -201,8 +202,8 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
         </div>
       </div>
 
-      <section className="grid gap-2.5" aria-labelledby="l-place">
-        <h2 id="l-place" className="text-[15px] font-semibold">
+      <section className="card grid gap-3" aria-labelledby="l-place">
+        <h2 id="l-place" className="card-title">
           사우나
         </h2>
         <PlacePicker
@@ -215,76 +216,63 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
         />
       </section>
 
-      <section className="grid gap-2.5" aria-labelledby="l-toto">
-        <h2 id="l-toto" className="text-[15px] font-semibold">
-          토토노이
-        </h2>
-        <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-labelledby="l-toto">
-          {([1, 2, 3, 4, 5] as Totonoi[]).map((v) => {
-            const on = totonoi === v;
-            return (
-              <button
-                key={v}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                aria-label={`${v}, ${TOTONOI_LABELS[v]}`}
-                onClick={() => {
-                  setTotonoi(v);
-                  setError("");
-                }}
-                className={`flex h-[4.25rem] flex-col items-center justify-center gap-1 rounded-xl transition-colors ${on ? "bg-ink text-on-ink" : "bg-fill text-ink"}`}
-              >
-                <span className="num text-[20px] leading-none font-bold">{v}</span>
-                <span className={`text-[11px] leading-none ${on ? "opacity-80" : "text-muted"}`}>{TOTONOI_LABELS[v]}</span>
-              </button>
-            );
-          })}
+      <section className="card grid gap-4" aria-labelledby="l-toto">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 id="l-toto" className="card-title">
+            토토노이
+          </h2>
+          <p aria-live="polite" className="num text-[15px] font-bold" style={totonoi ? { color: totoColor(totonoi) } : undefined}>
+            {totonoi ? `${totonoi} · ${TOTONOI_LABELS[totonoi]}` : <span className="font-medium text-muted">얼마나 풀렸어요?</span>}
+          </p>
         </div>
+        <TotonoiScale value={totonoi} onChange={(v) => {
+          setTotonoi(v);
+          setError("");
+        }} />
       </section>
 
-      <section className="grid gap-2.5" aria-labelledby="l-sets">
+      <section className="card grid gap-3" aria-labelledby="l-sets">
         <div className="flex items-baseline justify-between">
-          <h2 id="l-sets" className="text-[15px] font-semibold">
+          <h2 id="l-sets" className="card-title">
             세트
           </h2>
           <span className="text-[12px] text-muted">{measured ? "단계별 측정" : "시간은 평소 루틴으로 추정"}</span>
         </div>
         {stay ? (
-          <p className="num rounded-xl bg-fill px-4 py-3 text-[14px]">
+          <p className="num rounded-2xl bg-fill px-4 py-3 text-[14px]">
             머문 시간 <b className="font-semibold">{fmtStay(stay.stayMin)}</b>
             <span className="text-muted"> · {new Date(stay.startedAt).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })} 입장</span>
           </p>
         ) : null}
         {measured ? null : (
           <>
-            <div className="rounded-xl bg-fill px-3">
+            <div className="rounded-2xl bg-fill px-3">
               <Stepper label="몇 세트 했어요?" value={sets.length} display={`${sets.length}세트`} step={1} min={1} max={10} onChange={setCount} />
             </div>
-            <div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="세트 시간">
+            <div className="grid grid-cols-3 gap-1 rounded-2xl bg-fill p-1" role="radiogroup" aria-label="세트 시간">
               {(["short", "usual", "long"] as Pace[]).map((p) => (
-                <button key={p} type="button" role="radio" aria-checked={pace === p} onClick={() => applyPace(p)} className={`min-h-11 rounded-xl text-[14px] font-medium ${pace === p ? "bg-ink text-on-ink" : "bg-fill text-ink-soft"}`}>
+                <button key={p} type="button" role="radio" aria-checked={pace === p} onClick={() => applyPace(p)} className={`press min-h-10 rounded-xl text-[14px] ${pace === p ? "bg-surface font-semibold text-ink shadow-[0_1px_2px_rgb(0_0_0/0.08)]" : "font-medium text-muted"}`}>
                   {PACE_LABEL[p]}
                 </button>
               ))}
             </div>
           </>
         )}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pt-1">
           <div className="min-w-0 flex-1">
             <SetBar sets={sets} />
           </div>
           <button type="button" aria-expanded={openSets} onClick={() => setOpenSets((v) => !v)} className="flex shrink-0 items-center gap-0.5 text-[13px] text-muted">
-            {measured ? "시간 보기" : "시간 직접 고치기"}
+            {measured ? "시간 보기" : "직접 고치기"}
             <ChevronDown className={`size-4 transition-transform ${openSets ? "rotate-180" : ""}`} aria-hidden />
           </button>
         </div>
         {openSets ? (
-          <div className="rounded-xl border border-line px-3 pb-2">
+          <div className="rounded-2xl bg-fill px-3 pb-2">
             {perSet ? (
               <ol>
                 {sets.map((s, i) => (
-                  <li key={i} className="border-b border-line pt-2 last:border-0">
+                  <li key={i} className="border-b border-fill-2 pt-2 last:border-0">
                     <p className="text-[12px] font-semibold text-muted">{i + 1}세트</p>
                     <Stepper label="사우나" tone="heat" value={s.saunaSec} display={fmtDur(s.saunaSec)} step={60} min={60} max={1800} onChange={(v) => editSet(i, { saunaSec: v })} />
                     <Stepper label="냉탕" tone="cold" value={s.plungeSec} display={fmtDur(s.plungeSec)} step={15} min={0} max={600} onChange={(v) => editSet(i, { plungeSec: v })} />
@@ -299,7 +287,7 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
                 <Stepper label="외기욕" tone="rest" value={one.restSec} display={fmtDur(one.restSec)} step={60} min={0} max={1800} onChange={(v) => setAll({ restSec: v })} />
               </div>
             )}
-            <div className="flex justify-end border-t border-line pt-2">
+            <div className="flex justify-end border-t border-fill-2 pt-2">
               <button type="button" className="min-h-9 text-[13px] text-muted underline underline-offset-2" onClick={() => setPerSet((v) => !v)}>
                 {perSet ? "모두 같게" : "세트마다 다르게"}
               </button>
@@ -308,10 +296,13 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
         ) : null}
       </section>
 
-      <section className="grid gap-2.5" aria-labelledby="l-rest">
-        <h2 id="l-rest" className="text-[15px] font-semibold">
-          외기욕 <span className="text-[13px] font-normal text-muted">선택 · 무엇이 토토노이를 올렸는지 찾는 데 써요</span>
-        </h2>
+      <section className="card grid gap-3" aria-labelledby="l-rest">
+        <div className="grid gap-0.5">
+          <h2 id="l-rest" className="card-title">
+            외기욕 <span className="text-[13px] font-normal text-muted">선택</span>
+          </h2>
+          <p className="text-[13px] text-muted">무엇이 토토노이를 올렸는지 찾는 데 써요</p>
+        </div>
         <div className="flex flex-wrap gap-1.5">
           {(Object.keys(REST_POSE_LABEL) as RestPose[]).map((k) => (
             <button key={k} type="button" className="chip" aria-pressed={restPose === k} onClick={() => setRestPose((v) => (v === k ? undefined : k))}>
@@ -327,13 +318,13 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
         </div>
       </section>
 
-      <details className="group" open={!!(e?.memo || e?.saunaTempC || e?.plungeTempC || e?.food)}>
-        <summary className="flex min-h-11 list-none items-center gap-1.5 text-[15px] font-semibold [&::-webkit-details-marker]:hidden">
-          온도 · 후기
+      <details className="group card py-2" open={!!(e?.memo || e?.saunaTempC || e?.plungeTempC || e?.food)}>
+        <summary className="flex min-h-12 list-none items-center gap-1.5 [&::-webkit-details-marker]:hidden">
+          <span className="card-title">온도 · 후기</span>
           <span className="text-[13px] font-normal text-muted">선택</span>
           <ChevronDown className="ml-auto size-[18px] text-muted transition-transform group-open:rotate-180" aria-hidden />
         </summary>
-        <div className="grid gap-3 pt-2">
+        <div className="grid gap-3 pt-1 pb-3">
           <div className="grid grid-cols-2 gap-2">
             <label className="grid gap-1.5">
               <span className="label">사우나 온도</span>
@@ -361,32 +352,21 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
         </div>
       </details>
 
-      <div className="grid gap-3">
-        <label className="flex min-h-11 items-center justify-between gap-3">
-          <span className="text-[15px]">
-            피드에 공개 <span className="text-[13px] text-muted">{isPublic ? "다른 사람도 볼 수 있어요" : "나만 봐요"}</span>
-          </span>
-          <span className="relative inline-flex">
-            <input type="checkbox" role="switch" checked={isPublic} onChange={(x) => setPublic(x.target.checked)} className="peer sr-only" />
-            <span className="h-[30px] w-[50px] rounded-full bg-fill-2 transition-colors peer-checked:bg-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink" />
-            <span className="absolute top-[3px] left-[3px] size-6 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5" />
-          </span>
-        </label>
-
-        {error ? (
-          <p role="alert" className="text-[14px] font-medium text-heat">
-            {error}
-          </p>
-        ) : null}
-        <button type="submit" className="btn-ink w-full" aria-disabled={!ready} style={ready ? undefined : { opacity: 0.35 }}>
-          {e ? "수정 저장" : "기록 저장"}
-        </button>
-        {!user && !e ? <p className="text-center text-[12px] text-muted">가입 없이 이 기기에 저장돼요</p> : null}
-      </div>
+      <label className="card flex min-h-11 items-center justify-between gap-3 py-4">
+        <span className="grid">
+          <span className="text-[15px] font-semibold">피드에 공개</span>
+          <span className="text-[13px] text-muted">{isPublic ? "다른 사람도 볼 수 있어요" : "나만 봐요"}</span>
+        </span>
+        <span className="relative inline-flex">
+          <input type="checkbox" role="switch" checked={isPublic} onChange={(x) => setPublic(x.target.checked)} className="peer sr-only" />
+          <span className="h-[31px] w-[51px] rounded-full bg-fill-2 transition-colors peer-checked:bg-rest peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink" />
+          <span className="absolute top-[2px] left-[2px] size-[27px] rounded-full bg-white shadow-[0_2px_4px_rgb(0_0_0/0.15)] transition-transform peer-checked:translate-x-5" />
+        </span>
+      </label>
 
       {e ? (
         confirmDelete ? (
-          <div className="flex items-center justify-between rounded-xl bg-heat-soft px-4 py-3">
+          <div className="flex items-center justify-between rounded-2xl bg-heat-soft px-4 py-3">
             <span className="text-[14px]">이 기록을 지울까요?</span>
             <span className="flex gap-1.5">
               <button type="button" className="chip bg-surface" onClick={() => setConfirmDelete(false)}>
@@ -405,11 +385,55 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
             </span>
           </div>
         ) : (
-          <button type="button" onClick={() => setConfirmDelete(true)} className="inline-flex items-center gap-1.5 justify-self-center text-[14px] text-muted hover:text-heat">
+          <button type="button" onClick={() => setConfirmDelete(true)} className="inline-flex min-h-11 items-center gap-1.5 justify-self-center text-[14px] text-muted hover:text-heat">
             <Trash2 className="size-4" aria-hidden /> 기록 지우기
           </button>
         )
       ) : null}
+
+      {/* 저장 버튼은 탭바 바로 위에 붙어 있다. 스크롤해도 늘 보인다. */}
+      <div className="sticky bottom-[calc(58px+env(safe-area-inset-bottom))] z-20 -mx-4 grid gap-2 bg-gradient-to-t from-bg from-70% to-transparent px-4 pt-6 pb-3 md:bottom-0">
+        {error ? (
+          <p role="alert" className="text-center text-[14px] font-medium text-heat">
+            {error}
+          </p>
+        ) : null}
+        <button type="submit" className="btn-ink w-full" aria-disabled={!ready} style={ready ? undefined : { opacity: 0.35 }}>
+          {e ? "수정 저장" : "기록 저장"}
+        </button>
+        {!user && !e ? <p className="text-center text-[12px] text-muted">가입 없이 이 기기에 저장돼요</p> : null}
+      </div>
     </form>
+  );
+}
+
+/** 이 앱의 한 가지 강조점. 한 줄 눈금이라 엄지로 바로 고른다. */
+function TotonoiScale({ value, onChange }: { value: Totonoi | null; onChange: (v: Totonoi) => void }) {
+  return (
+    <div className="grid gap-2">
+      <div className="grid grid-cols-5 gap-1 rounded-[18px] bg-fill p-1" role="radiogroup" aria-labelledby="l-toto">
+        {([1, 2, 3, 4, 5] as Totonoi[]).map((v) => {
+          const on = value === v;
+          return (
+            <button
+              key={v}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              aria-label={`${v}, ${TOTONOI_LABELS[v]}`}
+              onClick={() => onChange(v)}
+              className={`press num flex h-14 items-center justify-center rounded-[14px] text-[22px] font-bold ${on ? "text-white" : "text-ink-soft"}`}
+              style={on ? { background: totoColor(v) } : undefined}
+            >
+              {v}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex justify-between px-1 text-[12px] text-muted" aria-hidden>
+        <span>아직 덥다</span>
+        <span>완전히 풀렸다</span>
+      </div>
+    </div>
   );
 }

@@ -23,9 +23,9 @@ export function Nav() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 bg-bg/95 pt-[env(safe-area-inset-top)] backdrop-blur">
+      <header className="sticky top-0 z-30 bg-bg/80 pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150">
         <div className="mx-auto flex h-13 max-w-lg items-center px-4">
-          <Link href="/" className="text-[19px] font-extrabold tracking-[-0.04em]">
+          <Link href="/" className="text-[17px] font-extrabold tracking-[-0.045em]">
             사우나고싶다
           </Link>
           <nav className="ml-auto hidden gap-1 md:flex" aria-label="주 메뉴">
@@ -43,7 +43,7 @@ export function Nav() {
         </div>
       </header>
 
-      <nav aria-label="하단 메뉴" className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav aria-label="하단 메뉴" className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl backdrop-saturate-150 md:hidden">
         <ul className="mx-auto grid max-w-lg grid-cols-4">
           {tabs.map(({ href, label, icon: Icon }) => {
             const on = active(pathname, href);
@@ -52,7 +52,7 @@ export function Nav() {
                 <Link
                   href={href}
                   aria-current={on ? "page" : undefined}
-                  className={`flex h-[58px] flex-col items-center justify-center gap-1 text-[11px] ${on ? "font-semibold text-ink" : "text-muted"}`}
+                  className={`press flex h-[58px] flex-col items-center justify-center gap-1 text-[11px] ${on ? "font-semibold text-ink" : "text-muted"}`}
                 >
                   <Icon className="size-[22px]" strokeWidth={on ? 2.2 : 1.7} aria-hidden />
                   {label}

@@ -14,8 +14,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#111113" },
+    { media: "(prefers-color-scheme: light)", color: "#f2f3f5" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
 };
 
@@ -35,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <Providers>
           <Nav />
-          <main id="main" className="mx-auto w-full max-w-lg px-4 pt-2 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-16">
+          <main id="main" className="mx-auto w-full max-w-lg px-4 pt-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-16">
             {children}
           </main>
         </Providers>

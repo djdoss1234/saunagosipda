@@ -45,11 +45,11 @@ export function PlaceView({ place }: { place: Place }) {
   const map = `https://map.naver.com/p/search/${encodeURIComponent(`${place.name} ${place.district}`)}`;
 
   return (
-    <div className="grid gap-6 pt-2">
+    <div className="grid gap-3 pt-3">
       {justSaved ? (
-        <section className="grid gap-3 rounded-2xl bg-fill p-4" aria-labelledby="saved-h" role="status">
+        <section className="card grid gap-3" aria-labelledby="saved-h" role="status">
           <div className="flex items-center gap-2">
-            <span className="flex size-6 items-center justify-center rounded-full bg-ink text-on-ink">
+            <span className="flex size-6 items-center justify-center rounded-full bg-rest text-white">
               <Check className="size-3.5" strokeWidth={3} aria-hidden />
             </span>
             <h2 id="saved-h" className="text-[16px] font-bold">
@@ -68,11 +68,11 @@ export function PlaceView({ place }: { place: Place }) {
         </section>
       ) : null}
 
-      <header className="grid gap-1.5">
+      <header className="card grid gap-1.5">
         <p className="text-[13px] text-muted">
           {areaOf(place)} · {place.type}
         </p>
-        <h1 className="text-[24px] leading-tight font-bold">{place.name}</h1>
+        <h1 className="text-[24px] leading-tight font-extrabold tracking-[-0.04em]">{place.name}</h1>
         <div className="mt-1 grid gap-1 text-[14px] text-ink-soft">
           <a href={map} target="_blank" rel="noreferrer" className="flex items-start gap-1.5">
             <MapPin className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden />
@@ -88,7 +88,7 @@ export function PlaceView({ place }: { place: Place }) {
       </header>
 
       {place.lat !== undefined && place.lng !== undefined ? (
-        <div className="overflow-hidden rounded-2xl">
+        <div className="overflow-hidden rounded-[22px]">
           <MapAuto
             view={{ center: { lat: place.lat, lng: place.lng }, zoom: 16 }}
             markers={[{ id: place.id, lat: place.lat, lng: place.lng, label: place.name }]}
@@ -100,32 +100,30 @@ export function PlaceView({ place }: { place: Place }) {
       ) : null}
 
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" onClick={() => toggleWant(place.id)} aria-pressed={want} className={want ? "btn-ink" : "btn-fill"}>
+        <button type="button" onClick={() => toggleWant(place.id)} aria-pressed={want} className={`press ${want ? "btn-ink" : "btn-fill bg-surface"}`}>
           <Bookmark className={`size-[18px] ${want ? "fill-current" : ""}`} strokeWidth={1.9} aria-hidden />
           {want ? "가고싶어요 저장됨" : "가고싶어요"}
         </button>
-        <Link href={`/new?place=${place.id}&name=${encodeURIComponent(place.name)}&area=${encodeURIComponent(areaOf(place))}`} className="btn-fill">
+        <Link href={`/new?place=${place.id}&name=${encodeURIComponent(place.name)}&area=${encodeURIComponent(areaOf(place))}`} className="btn-fill press bg-surface">
           <PencilLine className="size-[18px]" strokeWidth={1.9} aria-hidden />
           여기 기록하기
         </Link>
       </div>
 
-      <div className="divider" />
-
-      <section aria-labelledby="pst" className="grid gap-3">
-        <h2 id="pst" className="section-title">
+      <section aria-labelledby="pst" className="card grid gap-3">
+        <h2 id="pst" className="card-title">
           이용자 기록 {st ? <span className="num text-[15px] font-medium text-muted">{st.count}</span> : null}
         </h2>
         {st ? (
           <>
-            <dl className="grid grid-cols-4 gap-2 text-center">
+            <dl className="grid grid-cols-4 gap-1 rounded-2xl bg-fill py-3 text-center">
               {[
                 { k: "사우나", v: st.saunaTempC !== null ? `${st.saunaTempC}°` : "–", c: "text-heat" },
                 { k: "냉탕", v: st.plungeTempC !== null ? `${st.plungeTempC}°` : "–", c: "text-cold" },
                 { k: "평균 세트", v: st.avgSets ?? "–", c: "" },
                 { k: "토토노이", v: st.avgTotonoi, c: "text-rest" },
               ].map((x) => (
-                <div key={x.k} className="rounded-xl bg-fill px-1 py-3">
+                <div key={x.k} className="px-1">
                   <dd className={`num text-[18px] font-bold ${x.c}`}>{x.v}</dd>
                   <dt className="mt-0.5 text-[12px] text-muted">{x.k}</dt>
                 </div>
@@ -138,9 +136,9 @@ export function PlaceView({ place }: { place: Place }) {
         ) : null}
 
         {others.length ? (
-          <div className="divide-y divide-line border-t border-line">
+          <div className="divide-y divide-line">
             {others.slice(0, 30).map((r) => (
-              <RecordCard key={r.id} r={r} showPlace={false} />
+              <RecordCard key={r.id} r={r} showPlace={false} carded={false} />
             ))}
           </div>
         ) : null}

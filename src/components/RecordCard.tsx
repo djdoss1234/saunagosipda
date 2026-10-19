@@ -1,6 +1,7 @@
 "use client";
 
 import { SetBar } from "@/components/SetBar";
+import { totoColor } from "@/lib/toto";
 import { useApp } from "@/context/AppState";
 import { fmtStay, setsMeasured, SOURCE_LABEL, TOTONOI_LABELS } from "@/harness/records";
 import type { SessionRecord } from "@/lib/types";
@@ -20,7 +21,7 @@ export function fmtDate(date: string) {
 /** 토토노이 = 숫자 + 말. 점·별 대신 글자로. */
 export function TotonoiTag({ value, size = "sm" }: { value: number; size?: "sm" | "md" }) {
   return (
-    <span className={`inline-flex items-baseline gap-1 font-semibold text-rest ${size === "md" ? "text-[14px]" : "text-[12px]"}`}>
+    <span className={`inline-flex items-baseline gap-1 font-semibold ${size === "md" ? "text-[14px]" : "text-[12px]"}`} style={{ color: totoColor(value) }}>
       <span className="num">토토노이 {value}</span>
       <span className="font-normal">{TOTONOI_LABELS[value as 1]}</span>
     </span>
@@ -46,19 +47,19 @@ export function RecordRow({ r }: { r: SessionRecord }) {
           <TotonoiTag value={r.totonoi} />
         </span>
       </span>
-      <ChevronRight className="size-4 shrink-0 text-fill-2" aria-hidden />
+      <ChevronRight className="size-4 shrink-0 text-muted/50" aria-hidden />
     </Link>
   );
 }
 
 /** 피드·시설 화면의 기록 = 후기 */
-export function RecordCard({ r, showPlace = true }: { r: SessionRecord; showPlace?: boolean }) {
+export function RecordCard({ r, showPlace = true, carded = true }: { r: SessionRecord; showPlace?: boolean; carded?: boolean }) {
   const { liked, like, user } = useApp();
   const mine = user?.id === r.userId;
   const hasLiked = liked.includes(r.id);
   const f = facts(r);
   return (
-    <article className="grid gap-2.5 py-5">
+    <article className={`grid gap-2.5 ${carded ? "card" : "py-5"}`}>
       <header className="flex items-center gap-2.5">
         <span className="flex size-8 items-center justify-center rounded-full bg-fill text-[13px] font-semibold text-ink-soft" aria-hidden>
           {r.userName.slice(0, 1)}

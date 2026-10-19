@@ -45,22 +45,22 @@ export function Me() {
     : [];
 
   return (
-    <div className="grid gap-7 pt-2">
+    <div className="grid gap-3 pt-3">
       {saved ? (
-        <p role="status" className="flex items-center gap-2 rounded-xl bg-fill px-4 py-3 text-[14px] font-semibold">
+        <p role="status" className="card flex items-center gap-2 py-3.5 text-[15px] font-semibold text-rest">
           <Check className="size-4" strokeWidth={2.6} aria-hidden /> 기록했어요
         </p>
       ) : null}
 
-      <section className="flex items-center gap-3">
+      <section className="flex items-center gap-3 px-1 pb-1">
         {name === null ? (
           <>
-            <span className="flex size-12 items-center justify-center rounded-full bg-fill text-[18px] font-bold text-ink-soft" aria-hidden>
+            <span className="flex size-12 items-center justify-center rounded-full bg-surface text-[18px] font-bold text-ink-soft" aria-hidden>
               {(user?.name ?? "나").slice(0, 1)}
             </span>
-            <h1 className="min-w-0 flex-1 truncate text-[22px] font-bold">{user?.name ?? "아직 기록이 없어요"}</h1>
+            <h1 className="title-xl min-w-0 flex-1 truncate text-[24px]">{user?.name ?? "아직 기록이 없어요"}</h1>
             {user ? (
-              <button type="button" className="chip gap-1" onClick={() => setNameDraft(user.name)}>
+              <button type="button" className="chip chip-raised gap-1" onClick={() => setNameDraft(user.name)}>
                 <PencilLine className="size-3.5" aria-hidden /> 이름
               </button>
             ) : null}
@@ -87,8 +87,8 @@ export function Me() {
 
       <MonthCard records={records} months={recordMonths(records)} idx={monthIdx} setIdx={setMonthIdx} streak={s.streakWeeks} />
 
-      <section aria-labelledby="ins" className="grid gap-1">
-        <h2 id="ins" className="section-title">
+      <section aria-labelledby="ins" className="card grid gap-1">
+        <h2 id="ins" className="card-title">
           무엇이 토토노이를 올렸나
         </h2>
         <p className="text-[13px] text-muted">조건이 있을 때와 없을 때의 평균 차이. 양쪽 다 {INSIGHT_MIN_N}회 이상 쌓인 것만 보여요.</p>
@@ -115,15 +115,15 @@ export function Me() {
             ))}
           </ul>
         ) : (
-          <p className="mt-2 rounded-xl bg-fill px-4 py-4 text-[14px] leading-relaxed text-ink-soft">
+          <p className="mt-2 rounded-2xl bg-fill px-4 py-4 text-[14px] leading-relaxed text-ink-soft">
             아직 비교할 만큼 쌓이지 않았어요. 외기욕 자세·장소, 온도, 입장 시각을 같이 남기면 더 빨리 보여요.
           </p>
         )}
       </section>
 
       {r ? (
-        <section aria-labelledby="rt" className="grid gap-1">
-          <h2 id="rt" className="section-title">
+        <section aria-labelledby="rt" className="card grid gap-1">
+          <h2 id="rt" className="card-title">
             내 루틴
           </h2>
           <p className="text-[13px] text-muted">기록의 중앙값과 『사우나 교과서』 권장값</p>
@@ -152,12 +152,12 @@ export function Me() {
         </section>
       ) : null}
 
-      <section aria-labelledby="hr" className="grid gap-2">
-        <h2 id="hr" className="section-title">
+      <section aria-labelledby="hr" className="card grid gap-2">
+        <h2 id="hr" className="card-title">
           나올 맥박
         </h2>
         {hrDraft === null ? (
-          <button type="button" onClick={() => setHrDraft(restingHr ? String(restingHr) : "")} className="flex items-center gap-3 rounded-xl bg-fill px-4 py-3.5 text-left">
+          <button type="button" onClick={() => setHrDraft(restingHr ? String(restingHr) : "")} className="press flex items-center gap-3 rounded-2xl bg-fill px-4 py-3.5 text-left">
             <HeartPulse className="size-5 shrink-0 text-heat" strokeWidth={1.9} aria-hidden />
             {pulse ? (
               <span className="min-w-0 flex-1">
@@ -202,7 +202,7 @@ export function Me() {
       </section>
 
       {[...byMonth.entries()].map(([month, list]) => (
-        <section key={month} aria-labelledby={`m-${month}`}>
+        <section key={month} aria-labelledby={`m-${month}`} className="card pb-1">
           <h2 id={`m-${month}`} className="label">
             {monthLabel(month)} · {list.length}회
           </h2>
@@ -217,20 +217,18 @@ export function Me() {
       ))}
 
       {!records.length ? (
-        <Link href="/" className="btn-ink">
+        <Link href="/" className="btn-ink mt-1">
           첫 기록 남기기
         </Link>
       ) : null}
 
-      <div className="divider" />
-
-      <section className="grid gap-3" aria-label="데이터">
+      <section className="card grid gap-3" aria-label="데이터">
         <button type="button" onClick={exportCSV} disabled={!records.length} className="btn-fill w-full disabled:opacity-40">
           <Download className="size-[18px]" aria-hidden /> 내 기록 CSV로 받기
         </button>
         <p className="text-[12px] leading-relaxed text-muted">기록은 이 기기에 저장되고, 공개한 기록만 피드에 올라가요. 기기를 바꾸기 전에 CSV로 받아 두세요.</p>
         {confirmReset ? (
-          <div className="flex items-center justify-between rounded-xl bg-heat-soft px-4 py-3">
+          <div className="flex items-center justify-between rounded-2xl bg-heat-soft px-4 py-3">
             <span className="text-[14px]">이 기기의 기록을 모두 지울까요?</span>
             <span className="flex gap-1.5">
               <button type="button" className="chip bg-surface" onClick={() => setConfirmReset(false)}>
@@ -279,19 +277,22 @@ function MonthCard({
   const m = monthSummary(records, ym);
   const label = `${+ym.slice(0, 4)}년 ${+ym.slice(5, 7)}월`;
   return (
-    <section aria-label="월간 요약" className="grid gap-3 rounded-2xl bg-fill p-4">
-      <div className="flex items-center">
-        <button type="button" aria-label="이전 달" disabled={idx >= months.length - 1} onClick={() => setIdx(idx + 1)} className="flex size-9 items-center justify-center rounded-full disabled:opacity-25">
+    <section aria-label="월간 요약" className="card grid gap-4">
+      <div className="-mx-2 -mt-2 flex items-center">
+        <button type="button" aria-label="이전 달" disabled={idx >= months.length - 1} onClick={() => setIdx(idx + 1)} className="press flex size-10 items-center justify-center rounded-full disabled:opacity-25">
           <ChevronLeft className="size-5" aria-hidden />
         </button>
-        <h2 className="flex-1 text-center text-[16px] font-bold">{label}</h2>
-        <button type="button" aria-label="다음 달" disabled={idx === 0} onClick={() => setIdx(idx - 1)} className="flex size-9 items-center justify-center rounded-full disabled:opacity-25">
+        <h2 className="flex-1 text-center text-[15px] font-semibold text-ink-soft">{label}</h2>
+        <button type="button" aria-label="다음 달" disabled={idx === 0} onClick={() => setIdx(idx - 1)} className="press flex size-10 items-center justify-center rounded-full disabled:opacity-25">
           <ChevronRight className="size-5" aria-hidden />
         </button>
       </div>
-      <dl className="grid grid-cols-3 gap-2 text-center">
+      <p className="grid justify-items-center gap-1">
+        <span className="num text-[52px] leading-none font-extrabold tracking-[-0.05em]">{m.count}</span>
+        <span className="text-[14px] text-muted">번 다녀왔어요</span>
+      </p>
+      <dl className="grid grid-cols-3 gap-y-4 border-t border-line pt-4 text-center">
         {[
-          { k: "방문", v: m.count },
           { k: "시설", v: m.places },
           { k: "평균 토토노이", v: m.avgTotonoi ?? "–" },
           { k: "세트", v: m.sets },
@@ -300,11 +301,11 @@ function MonthCard({
         ]
           .filter((x) => x.k)
           .map((x, i) => (
-          <div key={i} className="rounded-xl bg-surface px-1 py-3">
-            <dd className="num text-[18px] font-bold">{x.v}</dd>
-            <dt className="mt-0.5 text-[12px] text-muted">{x.k}</dt>
-          </div>
-        ))}
+            <div key={i} className="flex flex-col-reverse">
+              <dt className="mt-1 text-[12px] text-muted">{x.k}</dt>
+              <dd className="num text-[20px] font-bold">{x.v}</dd>
+            </div>
+          ))}
       </dl>
       {m.stayCount && m.stayCount < m.count ? <p className="text-[12px] text-muted">머문 시간은 사물함 타이머로 잰 {m.stayCount}번의 합이에요.</p> : null}
       {m.topPlaces.length ? (

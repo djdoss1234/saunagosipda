@@ -122,19 +122,19 @@ export function PlaceSearch() {
   const list = searching ? byName.places.filter((p) => !region || p.regionId === region) : region && regionHits.region === region ? regionHits.places : null;
 
   return (
-    <div className="grid gap-4 pt-2">
-      <h1 className="text-[24px] font-bold">사우나 찾기</h1>
+    <div className="grid gap-3 pt-3">
+      <h1 className="title-xl px-1 pb-1">사우나 찾기</h1>
 
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-4 size-[18px] -translate-y-1/2 text-muted" aria-hidden />
         <label htmlFor="sq" className="sr-only">
           이름·동네 검색
         </label>
-        <input id="sq" type="search" className="field pl-11" placeholder={total ? `전국 ${total.toLocaleString("ko-KR")}곳에서 검색` : "이름, 동네로 검색"} value={q} onChange={(e) => setQ(e.target.value)} enterKeyHint="search" />
+        <input id="sq" type="search" className="field bg-surface pl-11" placeholder={total ? `전국 ${total.toLocaleString("ko-KR")}곳에서 검색` : "이름, 동네로 검색"} value={q} onChange={(e) => setQ(e.target.value)} enterKeyHint="search" />
       </div>
 
       {!searching ? (
-        <section aria-label="지도" className="relative -mx-4 sm:mx-0">
+        <section aria-label="지도" className="relative overflow-hidden rounded-[22px]">
           <MapAuto
             view={view}
             onView={setView}
@@ -143,7 +143,7 @@ export function PlaceSearch() {
             selectedId={selected}
             onSelect={setSelected}
             me={me}
-            className="h-[min(52vh,420px)] sm:rounded-2xl"
+            className="h-[min(52vh,420px)]"
           />
           <button
             type="button"
@@ -177,24 +177,24 @@ export function PlaceSearch() {
       ) : null}
       {locError ? <p className="text-[13px] text-heat">{locError}</p> : null}
 
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {!searching && nearby ? (
-          <section className="grid gap-1">
-            <h2 className="section-title">내 주변 사우나</h2>
+          <section className="grid gap-2">
+            <h2 className="card-title px-1 pt-2">내 주변 사우나</h2>
             {nearby.length ? (
               <PlaceList list={nearby} counts={counts} wants={wants} distance={(p) => (p as Near).distanceKm} onFocus={(p) => focusOn(p)} />
             ) : (
-              <p className="py-6 text-center text-[14px] text-muted">50km 안에 등록된 사우나가 없어요.</p>
+              <p className="card text-center text-[14px] text-muted">50km 안에 등록된 사우나가 없어요.</p>
             )}
           </section>
         ) : null}
 
         <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none]">
-          <button type="button" className="chip" aria-pressed={!region} onClick={() => setRegion("")}>
+          <button type="button" className="chip chip-raised" aria-pressed={!region} onClick={() => setRegion("")}>
             전국
           </button>
           {regions.map((r) => (
-            <button key={r.id} type="button" className="chip" aria-pressed={region === r.id} onClick={() => setRegion(r.id)}>
+            <button key={r.id} type="button" className="chip chip-raised" aria-pressed={region === r.id} onClick={() => setRegion(r.id)}>
               {r.name}
             </button>
           ))}
@@ -204,11 +204,11 @@ export function PlaceSearch() {
           list.length ? (
             <PlaceList list={list} counts={counts} wants={wants} distance={distTo} />
           ) : byName.loading ? null : (
-            <p className="py-10 text-center text-[14px] text-muted">찾는 곳이 없어요. 목록에 없는 곳은 기록할 때 이름을 직접 적으면 돼요.</p>
+            <p className="card text-center text-[14px] leading-relaxed text-muted">찾는 곳이 없어요. 목록에 없는 곳은 기록할 때 이름을 직접 적으면 돼요.</p>
           )
         ) : saved.length ? (
-          <section className="grid gap-1">
-            <h2 className="section-title mt-2">
+          <section className="grid gap-2">
+            <h2 className="card-title px-1 pt-2">
               가고싶어요 <span className="num text-[15px] font-medium text-muted">{saved.length}</span>
             </h2>
             <PlaceList list={saved} counts={counts} wants={wants} distance={distTo} />
@@ -248,7 +248,7 @@ function PlaceList({
   onFocus?: (p: Place) => void;
 }) {
   return (
-    <ul>
+    <ul className="card py-1">
       {list.map((p) => {
         const d = distance?.(p);
         return (
@@ -263,7 +263,7 @@ function PlaceList({
                   {[d !== undefined ? fmtDistance(d) : null, areaOf(p), p.type, counts.get(p.id) ? `기록 ${counts.get(p.id)}` : null].filter(Boolean).join(" · ")}
                 </span>
               </span>
-              {onFocus ? null : <ChevronRight className="size-4 shrink-0 text-fill-2" aria-hidden />}
+              {onFocus ? null : <ChevronRight className="size-4 shrink-0 text-muted/50" aria-hidden />}
             </Link>
             {onFocus && p.lat !== undefined ? (
               <button type="button" onClick={() => onFocus(p)} className="ml-2 shrink-0 rounded-full bg-fill px-3 py-1.5 text-[12px] font-medium text-ink-soft">

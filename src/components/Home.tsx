@@ -23,9 +23,9 @@ export function Home() {
   }, []);
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-3">
       {lockerMin ? (
-        <Link href="/live" className="-mb-4 flex items-center gap-3 rounded-xl bg-ink px-4 py-3.5 text-on-ink">
+        <Link href="/live" className="press mt-2 flex items-center gap-3 rounded-[22px] bg-ink px-5 py-4 text-on-ink">
           <DoorOpen className="size-5 shrink-0" strokeWidth={1.9} aria-hidden />
           <span className="min-w-0 flex-1 text-[15px] font-semibold">
             입장 중 <span className="num font-normal opacity-70">· {fmtStay(lockerMin)}째</span>
@@ -38,10 +38,9 @@ export function Home() {
 
       {ready && recent.length ? (
         <>
-          <div className="divider" />
-          <section aria-labelledby="h-recent" className="grid gap-1">
+          <section aria-labelledby="h-recent" className="card grid gap-1 pb-2">
             <div className="flex items-center justify-between">
-              <h2 id="h-recent" className="section-title">
+              <h2 id="h-recent" className="card-title">
                 최근 기록
               </h2>
               <Link href="/me" className="flex items-center text-[13px] text-muted">

@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 /*
-  톤: 흰 바탕 + 거의 검정 하나 + 회색 면. 장식 없음.
-  색은 단계 의미(사우나·냉탕·외기욕)에만 쓴다. 그림자·그라데이션·이모지 안 씀.
+  v2 톤: 회색 바탕 위 흰 카드(묶음 목록). 장식 없음, 그림자 없음.
+  색은 단계 의미(사우나·냉탕·외기욕)에만 쓴다. 한 곳만 힘을 준다: 토토노이 눈금(열 → 안정).
 */
 :root {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --fill: #f4f4f5; /* 입력칸·칩·묶음 면 */
-  --fill-2: #ebebed;
-  --ink: #1d1c1f;
-  --ink-soft: #4a4950;
-  --muted: #8b8a92;
-  --line: #ececee;
+  --bg: #f2f3f5; /* 페이지 */
+  --surface: #ffffff; /* 카드 */
+  --fill: #f2f3f5; /* 카드 안 입력칸·칩 */
+  --fill-2: #e4e6ea;
+  --ink: #17181c;
+  --ink-soft: #4e5058;
+  --muted: #8b8e96;
+  --line: #edeef0;
   --heat: #ee5a24;
   --heat-soft: #fdeee7;
   --cold: #2b7de9;
@@ -25,21 +25,21 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #111113;
-    --surface: #111113;
-    --fill: #1e1e21;
-    --fill-2: #2a2a2e;
-    --ink: #f2f2f3;
+    --bg: #000000;
+    --surface: #18181b;
+    --fill: #242428;
+    --fill-2: #313136;
+    --ink: #f4f4f5;
     --ink-soft: #c4c4c9;
     --muted: #8b8a92;
-    --line: #26262a;
+    --line: #2a2a2e;
     --heat: #ff7a45;
     --heat-soft: #33201a;
     --cold: #5c9cf5;
     --cold-soft: #18243a;
     --rest: #3cc48e;
     --rest-soft: #15302a;
-    --on-ink: #111113;
+    --on-ink: #000000;
     color-scheme: dark;
   }
 }
@@ -108,17 +108,51 @@ button:disabled {
 
 /* 유틸리티(pl-11 등)가 이길 수 있게 components 레이어에 둔다. */
 @layer components {
+.card {
+  background: var(--surface);
+  border-radius: 22px;
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.title-xl {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+/* 누르면 살짝 들어간다(토스·iOS식 피드백). 사용자가 누를 때만 움직인다. */
+.press {
+  transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.press:active {
+  transform: scale(0.97);
+}
+
 .btn-ink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  min-height: 3.25rem;
-  border-radius: 12px;
+  min-height: 3.5rem;
+  border-radius: 16px;
   background: var(--ink);
   color: var(--on-ink);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  transition: transform 0.12s ease, opacity 0.15s ease;
+}
+
+.btn-ink:active {
+  transform: scale(0.98);
 }
 
 .btn-ink:disabled {
@@ -131,7 +165,7 @@ button:disabled {
   justify-content: center;
   gap: 0.375rem;
   min-height: 3.25rem;
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--fill);
   color: var(--ink);
   font-size: 15px;
@@ -150,6 +184,16 @@ button:disabled {
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
+  transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+/* 회색 페이지 위에 바로 놓이는 칩. 눌린 상태(아래)가 이긴다. */
+.chip-raised {
+  background: var(--surface);
 }
 
 .chip[aria-pressed="true"] {
@@ -159,8 +203,8 @@ button:disabled {
 
 .field {
   width: 100%;
-  min-height: 3.125rem;
-  border-radius: 12px;
+  min-height: 3.25rem;
+  border-radius: 14px;
   background: var(--fill);
   padding: 0 1rem;
   font-size: 16px; /* iOS 확대 방지 */
@@ -200,9 +244,8 @@ textarea.field {
 }
 
 .divider {
-  height: 8px;
-  background: var(--fill);
-  margin-inline: -1rem;
+  height: 1px;
+  background: var(--line);
 }
 }
 
