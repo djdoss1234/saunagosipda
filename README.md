@@ -53,3 +53,9 @@ UI는 규칙을 다시 만들지 않는다. 화면은 `src/harness/`만 호출�
 1. `src/data/licensed-baths.json`을 최신 레포 파일로 교체 (이 작업본에는 빈 파일).
 2. 피드 저장을 KV(최신 레포의 `runtimeEnv` + `parseKvPayload`)로.
 3. 진짜 로그인 → 기기 간 동기화, 좋아요 중복 방지.
+
+## 지도
+
+- `NEXT_PUBLIC_NAVER_MAP_KEY_ID`가 있으면 네이버 지도(Web Dynamic Map), 없거나 인증·로드 실패면 OpenStreetMap 타일 지도로 자동 전환.
+- 네이버 콘솔(NAVER Cloud Platform > Maps > Application)에서 Web 서비스 URL에 쓰는 도메인을 등록한다. 포트·경로 없이 호스트만(`http://localhost`, `https://sauna-beryl.vercel.app`). 미리보기 주소마다 도메인이 달라서, 미리보기에선 등록 안 된 주소면 OSM으로 보인다.
+- 키 파라미터가 `ncpClientId`인 예전 키면 `NEXT_PUBLIC_NAVER_MAP_KEY_PARAM=ncpClientId`.

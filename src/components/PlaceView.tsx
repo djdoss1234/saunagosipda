@@ -2,7 +2,7 @@
 
 import { areaOf } from "@/components/PlacePicker";
 import { RecordCard, TotonoiTag } from "@/components/RecordCard";
-import { SaunaMap } from "@/components/SaunaMap";
+import { MapAuto } from "@/components/MapAuto";
 import { SetBar } from "@/components/SetBar";
 import { useApp } from "@/context/AppState";
 import { byNewest, placeStats } from "@/harness/records";
@@ -89,7 +89,7 @@ export function PlaceView({ place }: { place: Place }) {
 
       {place.lat !== undefined && place.lng !== undefined ? (
         <div className="overflow-hidden rounded-2xl">
-          <SaunaMap
+          <MapAuto
             view={{ center: { lat: place.lat, lng: place.lng }, zoom: 16 }}
             markers={[{ id: place.id, lat: place.lat, lng: place.lng, label: place.name }]}
             selectedId={place.id}

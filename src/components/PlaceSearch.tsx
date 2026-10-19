@@ -1,7 +1,8 @@
 "use client";
 
 import { areaOf, usePlaceSearch } from "@/components/PlacePicker";
-import { SaunaMap, viewBounds, type MapView } from "@/components/SaunaMap";
+import { MapAuto } from "@/components/MapAuto";
+import { viewBounds, type MapView } from "@/components/SaunaMap";
 import { useApp } from "@/context/AppState";
 import { regions } from "@/data/regions";
 import { distanceKm, fmtDistance, type LatLng } from "@/lib/geo";
@@ -134,7 +135,7 @@ export function PlaceSearch() {
 
       {!searching ? (
         <section aria-label="지도" className="relative -mx-4 sm:mx-0">
-          <SaunaMap
+          <MapAuto
             view={view}
             onView={setView}
             onSize={(w, h) => setSize({ w, h })}

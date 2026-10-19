@@ -46,3 +46,6 @@ skills-lock.json
 next-env.d.ts
 
 scripts/.cache/
+
+# 예시 env는 커밋한다
+!.env.example
