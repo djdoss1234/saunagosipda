@@ -143,7 +143,7 @@ export function PlaceSearch() {
             selectedId={selected}
             onSelect={setSelected}
             me={me}
-            className="h-[min(52vh,420px)]"
+            className="h-[min(62vh,520px)]"
           />
           <button
             type="button"

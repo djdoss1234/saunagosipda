@@ -216,19 +216,17 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
         />
       </section>
 
-      <section className="card grid gap-4" aria-labelledby="l-toto">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 id="l-toto" className="card-title">
-            토토노이
-          </h2>
-          <p aria-live="polite" className="num text-[15px] font-bold" style={totonoi ? { color: totoColor(totonoi) } : undefined}>
-            {totonoi ? `${totonoi} · ${TOTONOI_LABELS[totonoi]}` : <span className="font-medium text-muted">얼마나 풀렸어요?</span>}
-          </p>
-        </div>
-        <TotonoiScale value={totonoi} onChange={(v) => {
-          setTotonoi(v);
-          setError("");
-        }} />
+      <section className="card grid justify-items-center gap-2" aria-labelledby="l-toto">
+        <h2 id="l-toto" className="card-title justify-self-start">
+          토토노이
+        </h2>
+        <TotonoiRing
+          value={totonoi}
+          onChange={(v) => {
+            setTotonoi(v);
+            setError("");
+          }}
+        />
       </section>
 
       <section className="card grid gap-3" aria-labelledby="l-sets">
@@ -407,30 +405,70 @@ function RecordForm({ initial, recent }: { initial: Initial; recent: PickedPlace
   );
 }
 
-/** 이 앱의 한 가지 강조점. 한 줄 눈금이라 엄지로 바로 고른다. */
-function TotonoiScale({ value, onChange }: { value: Totonoi | null; onChange: (v: Totonoi) => void }) {
+/**
+ * 이 화면의 주인공. 다섯 칸짜리 링 — 1·2 사우나 주황, 3 냉탕 파랑, 4·5 외기욕 초록.
+ * 고른 값까지 링이 차오른다. 칸은 각각 라디오 버튼이라 키보드로도 고른다.
+ */
+const RING = { size: 248, r: 104, stroke: 18, gapDeg: 6 };
+
+function arcPath(i: number) {
+  const { size, r, gapDeg } = RING;
+  const c = size / 2;
+  const span = 360 / 5;
+  // 맨 아래(6시)에서 시작해 시계 방향으로. 1이 왼쪽 아래, 5가 오른쪽 아래.
+  const a0 = 90 + i * span + gapDeg / 2;
+  const a1 = 90 + (i + 1) * span - gapDeg / 2;
+  const pt = (deg: number) => {
+    const rad = (deg * Math.PI) / 180;
+    return `${(c + r * Math.cos(rad)).toFixed(2)} ${(c + r * Math.sin(rad)).toFixed(2)}`;
+  };
+  return `M ${pt(a0)} A ${r} ${r} 0 0 1 ${pt(a1)}`;
+}
+
+function TotonoiRing({ value, onChange }: { value: Totonoi | null; onChange: (v: Totonoi) => void }) {
+  const { size, stroke } = RING;
+  const color = value ? totoColor(value) : "var(--muted)";
+  const pick = (v: Totonoi) => onChange(v);
   return (
-    <div className="grid gap-2">
-      <div className="grid grid-cols-5 gap-1 rounded-[18px] bg-fill p-1" role="radiogroup" aria-labelledby="l-toto">
-        {([1, 2, 3, 4, 5] as Totonoi[]).map((v) => {
-          const on = value === v;
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="radiogroup" aria-labelledby="l-toto" className="overflow-visible">
+        {([1, 2, 3, 4, 5] as Totonoi[]).map((v, i) => {
+          const filled = value !== null && v <= value;
           return (
-            <button
+            <path
               key={v}
-              type="button"
+              d={arcPath(i)}
+              fill="none"
+              stroke={filled ? color : "var(--fill-2)"}
+              strokeWidth={stroke}
+              strokeLinecap="round"
               role="radio"
-              aria-checked={on}
+              aria-checked={value === v}
               aria-label={`${v}, ${TOTONOI_LABELS[v]}`}
-              onClick={() => onChange(v)}
-              className={`press num flex h-14 items-center justify-center rounded-[14px] text-[22px] font-bold ${on ? "text-white" : "text-ink-soft"}`}
-              style={on ? { background: totoColor(v) } : undefined}
-            >
-              {v}
-            </button>
+              tabIndex={value === v || (value === null && v === 1) ? 0 : -1}
+              onClick={() => pick(v)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  pick(v);
+                }
+                if (e.key === "ArrowRight" || e.key === "ArrowUp") pick(Math.min(5, (value ?? 0) + 1) as Totonoi);
+                if (e.key === "ArrowLeft" || e.key === "ArrowDown") pick(Math.max(1, (value ?? 2) - 1) as Totonoi);
+              }}
+              className="cursor-pointer outline-none transition-[stroke] duration-200 focus-visible:[stroke-width:22]"
+            />
           );
         })}
+      </svg>
+      <div className="pointer-events-none absolute inset-0 grid place-content-center justify-items-center" aria-live="polite">
+        <span className="num text-[76px] leading-none font-bold tracking-[-0.05em]" style={{ color: value ? color : "var(--fill-2)" }}>
+          {value ?? "–"}
+        </span>
+        <span className="mt-2 text-[15px] font-semibold" style={{ color: value ? "var(--ink)" : "var(--muted)" }}>
+          {value ? TOTONOI_LABELS[value] : "링을 눌러 골라요"}
+        </span>
       </div>
-      <div className="flex justify-between px-1 text-[12px] text-muted" aria-hidden>
+      <div className="pointer-events-none absolute inset-x-0 -bottom-1 flex justify-between px-1 text-[12px] text-muted" aria-hidden>
         <span>아직 덥다</span>
         <span>완전히 풀렸다</span>
       </div>

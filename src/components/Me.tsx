@@ -5,6 +5,7 @@ import { useApp } from "@/context/AppState";
 import { byNewest, exitPulse, fmtDur, fmtStay, GUIDE, INSIGHT_MIN_N, insights, monthSummary, recordMonths, routine, stats, toCSV, validRestingHr } from "@/harness/records";
 import { Check, ChevronLeft, ChevronRight, Download, HeartPulse, PencilLine, TrendingDown, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { totoColor } from "@/lib/toto";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -287,14 +288,22 @@ function MonthCard({
           <ChevronRight className="size-5" aria-hidden />
         </button>
       </div>
-      <p className="grid justify-items-center gap-1">
-        <span className="num text-[52px] leading-none font-extrabold tracking-[-0.05em]">{m.count}</span>
-        <span className="text-[14px] text-muted">번 다녀왔어요</span>
-      </p>
-      <dl className="grid grid-cols-3 gap-y-4 border-t border-line pt-4 text-center">
+      <div className="flex items-end justify-between gap-4">
+        <p className="grid gap-1">
+          <span className="num text-[64px] leading-none font-bold tracking-[-0.05em]">{m.count}</span>
+          <span className="text-[14px] text-muted">번 다녀왔어요</span>
+        </p>
+        <p className="grid justify-items-end gap-1 pb-1">
+          <span className="num text-[28px] leading-none font-bold" style={{ color: m.avgTotonoi ? totoColor(m.avgTotonoi) : "var(--muted)" }}>
+            {m.avgTotonoi ?? "–"}
+          </span>
+          <span className="text-[12px] text-muted">평균 토토노이</span>
+        </p>
+      </div>
+      <TotoTrend records={records.filter((r) => r.date.startsWith(ym))} />
+      <dl className="grid grid-cols-4 gap-y-4 border-t border-line pt-4 text-center">
         {[
           { k: "시설", v: m.places },
-          { k: "평균 토토노이", v: m.avgTotonoi ?? "–" },
           { k: "세트", v: m.sets },
           { k: "머문 시간", v: m.stayCount ? fmtStay(m.stayMin) : "–" },
           { k: idx === 0 ? "연속 주" : "", v: idx === 0 ? streak : "" },
@@ -326,5 +335,39 @@ function MonthCard({
         </ol>
       ) : null}
     </section>
+  );
+}
+
+/** 이달 방문마다 토토노이 한 점. 선은 흐름만 보여 주고, 점 색이 사우나 한 바퀴의 단계다. */
+function TotoTrend({ records }: { records: Parameters<typeof monthSummary>[0] }) {
+  const pts = [...records].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).slice(-24);
+  const W = 320;
+  const H = 120;
+  const pad = 12;
+  if (pts.length < 2) {
+    return (
+      <div className="grid h-[120px] place-content-center rounded-2xl border border-dashed border-line-strong text-[13px] text-muted">
+        두 번 이상 기록하면 흐름이 그려져요
+      </div>
+    );
+  }
+  const x = (i: number) => pad + (i * (W - pad * 2)) / (pts.length - 1);
+  const y = (v: number) => H - pad - ((v - 1) / 4) * (H - pad * 2);
+  const d = pts.map((r, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(r.totonoi).toFixed(1)}`).join(" ");
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-[120px] w-full" role="img" aria-label={`이달 토토노이 ${pts.map((r) => r.totonoi).join(", ")}`}>
+      {[1, 3, 5].map((v) => (
+        <g key={v}>
+          <line x1={pad} x2={W - pad} y1={y(v)} y2={y(v)} stroke="var(--line)" strokeWidth="1" />
+          <text x={W - pad} y={y(v) - 4} textAnchor="end" fontSize="10" fill="var(--muted)">
+            {v}
+          </text>
+        </g>
+      ))}
+      <path d={d} fill="none" stroke="var(--line-strong)" strokeWidth="1.5" />
+      {pts.map((r, i) => (
+        <circle key={r.id} cx={x(i)} cy={y(r.totonoi)} r="4.5" fill={totoColor(r.totonoi)} />
+      ))}
+    </svg>
   );
 }
